@@ -34,18 +34,10 @@ async function initialize() {
     if (!response.ok) {
       throw new Error("game.jsonを読み込めませんでした。");
     }
-    
+
     gameConfig = await response.json();
-    
+
     console.log("読み込んだgameConfig:", gameConfig);
-    
-    initializeSupabase();
-
-    if (!response.ok) {
-      throw new Error("game.jsonを読み込めませんでした。");
-    }
-
-    gameConfig = await response.json();
 
     initializeSupabase();
 
