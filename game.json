@@ -1,0 +1,139 @@
+{
+  "settings": {
+    "minTime": 5,
+    "maxTime": 10
+  },
+
+  "supabase": {
+    "url": "ここにSupabaseのURL",
+    "key": "ここにSupabaseのPublishable key"
+  },
+
+  "collections": [
+
+
+
+    {
+      "time": "0.10",
+      "name": "X",
+      "category": "健全",
+      "url": "https://x.com/"
+    },
+
+    {
+      "time": "0.67",
+      "name": "6-7",
+      "category": "健全",
+      "url": "https://ja.wikipedia.org/wiki/6-7_(%E3%83%9F%E3%83%BC%E3%83%A0)"
+    },
+
+    {
+      "time": "1.11",
+      "name": "ポッキーの日",
+      "category": "健全",
+      "url": "https://www.pocky.jp/"
+    },
+
+    {
+      "time": "1.85",
+      "name": "広末涼子",
+      "category": "健全",
+      "url": "https://smart-flash.jp/entertainment/entertainment-news/377150/"
+    },
+
+    {
+      "time": "1.88",
+      "name": "消費者ホットライン",
+      "category": "健全",
+      "url": "https://www.caa.go.jp/policies/policy/local_cooperation/local_consumer_administration/hotline/"
+    },
+
+    {
+      "time": "3.00",
+      "name": "ムスカ",
+      "category": "健全",
+      "url": "https://castel.jp/item/120292/"
+    },
+
+    {
+      "time": "4.21",
+      "name": "ヒカキンの誕生日",
+      "category": "健全",
+      "url": "https://www.youtube.com/@HikakinTV"
+    },
+
+    {
+      "time": "7.94",
+      "name": "平安京",
+      "category": "健全",
+      "url": "https://n-kobetsu.com/nengo/nengo794_heiankyo.html"
+    },
+
+    {
+      "time": "8.21",
+      "name": "プーさん",
+      "category": "健全",
+      "url": "https://www.disney.co.jp/fc/pooh"
+    },
+
+
+
+
+    {
+      "time": "1.00",
+      "name": "okamoto",
+      "category": "成人向け",
+      "url": "https://okamoto001mm.jp/"
+    },
+
+    {
+      "time": "1.91",
+      "name": "pornhub",
+      "category": "成人向け",
+      "url": "https://jp.pornhub.com/"
+    },
+
+    {
+      "time": "2.22",
+      "name": "yuzusoft",
+      "category": "成人向け",
+      "url": "https://www.yuzu-soft.com/"
+    },
+
+    {
+      "time": "4.50",
+      "name": "tktube",
+      "category": "成人向け",
+      "url": "https://tktube.com/ja/"
+    },
+
+    {
+      "time": "4.56",
+      "name": "fanza",
+      "category": "成人向け",
+      "url": "https://www.fanza.jp/top/"
+    },
+
+    {
+      "time": "6.90",
+      "name": "tokyomotion",
+      "category": "成人向け",
+      "url": "https://www.tokyomotion.net/"
+    },
+
+    {
+      "time": "7.21",
+      "name": "missav",
+      "category": "成人向け",
+      "url": "https://missav.live/ja/genres"
+    },
+
+    {
+      "time": "8.10",
+      "name": "810",
+      "category": "成人向け",
+      "url": "https://chaosbattle.miraheze.org/wiki/%E9%87%8E%E7%8D%A3%E5%85%88%E8%BC%A9"
+    }
+
+  ]
+}

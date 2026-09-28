@@ -1,0 +1,541 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  font-family:
+    "Yu Gothic",
+    "Hiragino Kaku Gothic ProN",
+    Meiryo,
+    sans-serif;
+}
+
+body {
+  background: #fff4c8;
+  color: #333;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.hidden {
+  display: none !important;
+}
+
+
+/* =========================
+   共通画面
+========================= */
+
+.screen {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  padding: 30px 20px;
+}
+
+
+/* =========================
+   ログイン・新規作成
+========================= */
+
+.auth-box {
+  width: min(420px, 100%);
+  margin: 80px auto 0;
+  padding: 35px 30px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.auth-box h1 {
+  margin: 0 0 25px;
+  font-size: 28px;
+  color: #f0a900;
+}
+
+.auth-box h2 {
+  margin: 0 0 25px;
+  font-size: 24px;
+}
+
+.auth-box input {
+  display: block;
+  width: 100%;
+  margin: 12px 0;
+  padding: 14px;
+  border: 2px solid #eee0a8;
+  border-radius: 10px;
+  background: #fffdf3;
+  font-size: 16px;
+  outline: none;
+}
+
+.auth-box input:focus {
+  border-color: #ffcc33;
+}
+
+.auth-box > button:not(.text-button) {
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #ffcc33;
+  color: #333;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.auth-box > button:not(.text-button):hover {
+  opacity: 0.85;
+}
+
+.message {
+  min-height: 24px;
+  margin: 12px 0 0;
+  color: #d66;
+  font-size: 14px;
+}
+
+.auth-link {
+  margin-top: 25px;
+  font-size: 14px;
+  color: #666;
+}
+
+.text-button {
+  margin-left: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #e09c00;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.text-button:hover {
+  text-decoration: underline;
+}
+
+.corner-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 9px 15px;
+  border: none;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #555;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.corner-button:hover {
+  background: #fff9df;
+}
+
+
+/* =========================
+   トップ画面
+========================= */
+
+.top-header,
+.game-header,
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.top-header button,
+.game-header button,
+.page-header button {
+  padding: 9px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #555;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.top-header button:hover,
+.game-header button:hover,
+.page-header button:hover {
+  background: #fff9df;
+}
+
+#currentUserName,
+#gameUserName {
+  font-weight: bold;
+  color: #555;
+}
+
+.top-content {
+  text-align: center;
+  padding-top: 180px;
+}
+
+.top-content h1 {
+  margin-bottom: 45px;
+  font-size: 38px;
+  color: #e5a500;
+}
+
+
+/* =========================
+   ゲーム
+========================= */
+
+.game-content {
+  width: min(600px, 100%);
+  margin: 0 auto;
+  padding-top: 60px;
+  text-align: center;
+}
+
+.game-content h1 {
+  margin-bottom: 35px;
+  font-size: 36px;
+  color: #e5a500;
+}
+
+#targetText {
+  margin: 0;
+  font-size: 18px;
+  color: #777;
+}
+
+#targetTime {
+  margin-top: 5px;
+  font-size: 42px;
+  font-weight: bold;
+}
+
+#timer {
+  margin: 35px 0;
+  font-size: 72px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.main-button {
+  min-width: 220px;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 12px;
+  background: #ffcc33;
+  color: #333;
+  font-size: 20px;
+  font-weight: bold;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.main-button:hover {
+  opacity: 0.85;
+}
+
+.sub-button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #555;
+  font-weight: bold;
+}
+
+#gameMessage {
+  min-height: 30px;
+  margin-top: 20px;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+
+/* =========================
+   ランキング・コレクション
+========================= */
+
+.page-content {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  padding-top: 40px;
+}
+
+.page-content h1 {
+  margin: 0 0 25px;
+  text-align: center;
+  color: #e5a500;
+  font-size: 32px;
+}
+
+#collectionCount {
+  margin-bottom: 25px;
+  text-align: center;
+  font-weight: bold;
+  color: #666;
+}
+
+
+/* =========================
+   通常ランキング
+========================= */
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+  padding: 15px 18px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.ranking-item.current-user {
+  border: 2px solid #ffcc33;
+}
+
+.ranking-position {
+  width: 50px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.ranking-name {
+  flex: 1;
+  font-weight: bold;
+}
+
+.ranking-score {
+  font-weight: bold;
+}
+
+
+/* =========================
+   コレクション
+========================= */
+
+#collectionGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.collection-item {
+  min-height: 180px;
+  padding: 15px;
+  background: #ffffff;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+  transition: transform 0.15s;
+}
+
+.collection-item.unlocked {
+  cursor: pointer;
+}
+
+.collection-item.unlocked:hover {
+  transform: translateY(-3px);
+}
+
+.collection-trophy {
+  margin-bottom: 10px;
+  font-size: 48px;
+}
+
+.collection-time {
+  margin-bottom: 5px;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.collection-name {
+  min-height: 24px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.collection-item.locked {
+  opacity: 0.4;
+}
+
+.collection-item.locked .collection-trophy {
+  filter: grayscale(1);
+}
+
+.collection-item.adult .collection-time::before {
+  content: "★";
+  margin-right: 5px;
+  color: #ff75a8;
+}
+
+
+/* =========================
+   コレクションランキング
+========================= */
+
+.collection-ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+  padding: 15px 18px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.collection-ranking-item.current-user {
+  border: 2px solid #ffcc33;
+}
+
+.collection-ranking-position {
+  width: 50px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.collection-ranking-name {
+  flex: 1;
+  font-weight: bold;
+}
+
+.collection-ranking-count {
+  font-weight: bold;
+}
+
+
+/* =========================
+   スマートフォン
+========================= */
+
+@media (max-width: 600px) {
+
+  .screen {
+    padding: 20px 15px;
+  }
+
+  .auth-box {
+    margin-top: 60px;
+    padding: 28px 20px;
+  }
+
+  .auth-box h1 {
+    font-size: 24px;
+  }
+
+  .auth-box h2 {
+    font-size: 21px;
+  }
+
+  .corner-button {
+    top: 15px;
+    right: 15px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .top-content {
+    padding-top: 130px;
+  }
+
+  .top-content h1 {
+    font-size: 28px;
+  }
+
+  .game-content {
+    padding-top: 45px;
+  }
+
+  .game-content h1 {
+    font-size: 27px;
+  }
+
+  #targetTime {
+    font-size: 34px;
+  }
+
+  #timer {
+    margin: 30px 0;
+    font-size: 58px;
+  }
+
+  .main-button {
+    min-width: 180px;
+    font-size: 18px;
+  }
+
+  .page-content {
+    padding-top: 30px;
+  }
+
+  .page-content h1 {
+    font-size: 27px;
+  }
+
+  /*
+    スマホではコレクションを2列
+  */
+  #collectionGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .collection-item {
+    min-height: 160px;
+    padding: 12px 8px;
+  }
+
+  .collection-trophy {
+    font-size: 40px;
+  }
+
+  .collection-time {
+    font-size: 15px;
+  }
+
+  .collection-name {
+    font-size: 12px;
+  }
+
+  .ranking-item,
+  .collection-ranking-item {
+    gap: 8px;
+    padding: 12px 10px;
+  }
+
+  .ranking-position,
+  .collection-ranking-position {
+    width: 35px;
+    font-size: 17px;
+  }
+
+  .ranking-name,
+  .collection-ranking-name {
+    font-size: 14px;
+  }
+
+  .ranking-score,
+  .collection-ranking-count {
+    font-size: 14px;
+  }
+}
