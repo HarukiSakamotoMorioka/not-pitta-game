@@ -13,7 +13,295 @@ body {
   padding: 0;
   width: 100%;
   min-height: 100%;
-}
+}<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>なにかおかしい、ぴった！</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ログイン画面 -->
+  <section id="loginScreen" class="screen">
+    <div class="auth-box">
+      <h1>なにかおかしい、ぴった！</h1>
+      <h2>ログイン</h2>
+
+      <input
+        id="loginName"
+        type="text"
+        placeholder="ログイン名"
+        maxlength="20"
+        autocomplete="username"
+      >
+
+      <input
+        id="loginPassword"
+        type="password"
+        placeholder="パスワード"
+        autocomplete="current-password"
+      >
+
+      <button id="loginButton">ログイン</button>
+
+      <p id="loginMessage" class="message"></p>
+
+      <div class="auth-link">
+        <span>アカウントを作成していない方</span>
+        <button id="goSignupButton" class="text-button">
+          新規作成
+        </button>
+      </div>
+    </div>
+
+    <button id="loginToSignupTop" class="corner-button">
+      新規作成
+    </button>
+  </section>
+
+
+  <!-- 新規作成画面 -->
+  <section id="signupScreen" class="screen hidden">
+    <div class="auth-box">
+      <h1>なにかおかしい、ぴった！</h1>
+      <h2>新規作成</h2>
+
+      <input
+        id="signupName"
+        type="text"
+        placeholder="ログイン名"
+        maxlength="20"
+        autocomplete="username"
+      >
+
+      <input
+        id="signupPassword"
+        type="password"
+        placeholder="パスワード（8文字以上）"
+        autocomplete="new-password"
+      >
+
+      <input
+        id="signupPasswordConfirm"
+        type="password"
+        placeholder="パスワード（確認）"
+        autocomplete="new-password"
+      >
+
+      <button id="signupButton">
+        アカウントを作成
+      </button>
+
+      <p id="signupMessage" class="message"></p>
+
+      <div class="auth-link">
+        <span>すでにアカウントをお持ちの方</span>
+        <button id="goLoginButton" class="text-button">
+          ログイン
+        </button>
+      </div>
+    </div>
+
+    <button id="signupToLoginTop" class="corner-button">
+      ログイン
+    </button>
+  </section>
+
+
+  <!-- トップ画面 -->
+  <section id="topScreen" class="screen hidden">
+
+    <div class="top-header">
+
+      <div class="user-area">
+        <button id="logoutButton">
+          ログアウト
+        </button>
+
+        <span id="currentUserName"></span>
+      </div>
+
+    </div>
+
+    <div class="top-content">
+
+      <h1>なにかおかしい、ぴった！</h1>
+
+      <button id="startGameButton" class="main-button">
+        ゲームスタート
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- ゲーム画面 -->
+  <section id="gameScreen" class="screen hidden">
+
+    <div class="game-header">
+
+      <!-- 左側：ログアウト → ユーザーネーム -->
+      <div class="game-user-area">
+
+        <button id="gameLogoutButton">
+          ログアウト
+        </button>
+
+        <span id="gameUserName"></span>
+
+      </div>
+
+
+      <!-- 右側：ランキング・コレクションランキング -->
+      <div class="game-ranking-area">
+
+        <button id="gameRankingButton">
+          ランキング
+        </button>
+
+        <button id="collectionRankingButton">
+          コレクションランキング
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="game-content">
+
+      <h1>なにかおかしい、ぴった！</h1>
+
+      <p id="targetText">
+        目標時間
+      </p>
+
+      <div id="targetTime">
+        0.00
+      </div>
+
+
+      <!-- タイマー -->
+      <div id="timerBox">
+
+        <span id="timer">
+          0.00
+        </span>
+
+        <span class="timer-unit">
+          秒
+        </span>
+
+      </div>
+
+
+      <!-- スタート・ストップ・もう一度 -->
+      <button id="gameButton" class="main-button">
+        スタート
+      </button>
+
+      <p id="gameMessage"></p>
+
+    </div>
+
+  </section>
+
+
+  <!-- 通常ランキング -->
+  <section id="rankScreen" class="screen hidden">
+
+    <div class="page-header">
+
+      <button id="rankBackButton">
+        ← 戻る
+      </button>
+
+      <button id="rankCollectionButton">
+        コレクション
+      </button>
+
+    </div>
+
+
+    <div class="page-content">
+
+      <h1>ランキング</h1>
+
+      <div id="rankingList"></div>
+
+    </div>
+
+  </section>
+
+
+  <!-- コレクション -->
+  <section id="collectionScreen" class="screen hidden">
+
+    <div class="page-header">
+
+      <button id="collectionBackButton">
+        ← 戻る
+      </button>
+
+      <button id="collectionRankingButtonFromCollection">
+        コレクションランキング
+      </button>
+
+    </div>
+
+
+    <div class="page-content">
+
+      <h1>コレクション</h1>
+
+      <p id="collectionCount"></p>
+
+      <div id="collectionGrid"></div>
+
+    </div>
+
+  </section>
+
+
+  <!-- コレクションランキング -->
+  <section id="collectionRankScreen" class="screen hidden">
+
+    <div class="page-header">
+
+      <button id="collectionRankBackButton">
+        ← 戻る
+      </button>
+
+      <button id="collectionRankGameButton">
+        ゲーム
+      </button>
+
+    </div>
+
+
+    <div class="page-content">
+
+      <h1>コレクションランキング</h1>
+
+      <div id="collectionRankingList"></div>
+
+    </div>
+
+  </section>
+
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- ゲーム本体 -->
+  <script src="script.js"></script>
+
+</body>
+</html>
 
 body {
   font-family:
