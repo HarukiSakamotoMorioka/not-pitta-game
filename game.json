@@ -5,8 +5,8 @@
   },
 
   "supabase": {
-    "url": "ここにSupabaseのURL",
-    "key": "ここにSupabaseのPublishable key"
+    "url": "https://gyswobhbraykpjcxbuvo.supabase.co",
+    "key": "sb_publishable_h3Nihgi_hGd3K2PhJ6dHjw_2YGShxhr"
   },
 
   "collections": [
