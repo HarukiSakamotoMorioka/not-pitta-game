@@ -1716,7 +1716,7 @@ if (hiddenCollection) {
 }
 
 await saveScore(difference);
-
+}
 
 // ========================================
 // スコア保存
