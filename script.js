@@ -140,6 +140,19 @@ function setupEvents() {
 
 
   // ----------------------------------------
+  // パスワードを忘れた
+  // ----------------------------------------
+
+  addClick(
+    "forgotPasswordButton",
+    () => {
+      showScreen("resetPasswordScreen");
+      clearResetPasswordForm();
+    }
+  );
+
+
+  // ----------------------------------------
   // 新規作成へ
   // ----------------------------------------
 
@@ -177,6 +190,24 @@ function setupEvents() {
     () => {
       showScreen("loginScreen");
       clearMessages();
+    }
+  );
+
+
+  // ----------------------------------------
+  // パスワード変更
+  // ----------------------------------------
+
+  addClick(
+    "resetPasswordButton",
+    resetPassword
+  );
+
+  addClick(
+    "resetToLoginButton",
+    () => {
+      showScreen("loginScreen");
+      clearResetPasswordForm();
     }
   );
 
@@ -320,12 +351,24 @@ function setupEvents() {
     }
   );
 
+
   addKeydown(
     "signupPasswordConfirm",
     (event) => {
 
       if (event.key === "Enter") {
         signup();
+      }
+    }
+  );
+
+
+  addKeydown(
+    "resetPasswordConfirm",
+    (event) => {
+
+      if (event.key === "Enter") {
+        resetPassword();
       }
     }
   );
@@ -387,6 +430,7 @@ function showScreen(screenId) {
   const screens = [
     "loginScreen",
     "signupScreen",
+    "resetPasswordScreen",
     "topScreen",
     "gameScreen",
     "rankScreen",
@@ -435,12 +479,21 @@ function clearMessages() {
       "signupMessage"
     );
 
+  const resetPasswordMessage =
+    document.getElementById(
+      "resetPasswordMessage"
+    );
+
   if (loginMessage) {
     loginMessage.textContent = "";
   }
 
   if (signupMessage) {
     signupMessage.textContent = "";
+  }
+
+  if (resetPasswordMessage) {
+    resetPasswordMessage.textContent = "";
   }
 }
 
@@ -467,6 +520,232 @@ function showSignupMessage(message) {
 
   if (element) {
     element.textContent = message;
+  }
+}
+
+
+function showResetPasswordMessage(message) {
+
+  const element =
+    document.getElementById(
+      "resetPasswordMessage"
+    );
+
+  if (element) {
+    element.textContent = message;
+  }
+}
+
+
+// ========================================
+// パスワード変更画面クリア
+// ========================================
+
+function clearResetPasswordForm() {
+
+  const nameInput =
+    document.getElementById(
+      "resetName"
+    );
+
+  const passwordInput =
+    document.getElementById(
+      "resetPassword"
+    );
+
+  const confirmInput =
+    document.getElementById(
+      "resetPasswordConfirm"
+    );
+
+  const message =
+    document.getElementById(
+      "resetPasswordMessage"
+    );
+
+  if (nameInput) {
+    nameInput.value = "";
+  }
+
+  if (passwordInput) {
+    passwordInput.value = "";
+  }
+
+  if (confirmInput) {
+    confirmInput.value = "";
+  }
+
+  if (message) {
+    message.textContent = "";
+  }
+}
+
+
+// ========================================
+// パスワード変更
+// ========================================
+
+async function resetPassword() {
+
+  if (!supabaseClient) {
+
+    showResetPasswordMessage(
+      "Supabaseを設定するとパスワードを変更できます。"
+    );
+
+    return;
+  }
+
+
+  const nameInput =
+    document.getElementById(
+      "resetName"
+    );
+
+  const passwordInput =
+    document.getElementById(
+      "resetPassword"
+    );
+
+  const confirmInput =
+    document.getElementById(
+      "resetPasswordConfirm"
+    );
+
+
+  if (
+    !nameInput ||
+    !passwordInput ||
+    !confirmInput
+  ) {
+    return;
+  }
+
+
+  const name =
+    nameInput.value.trim();
+
+  const password =
+    passwordInput.value;
+
+  const confirmPassword =
+    confirmInput.value;
+
+
+  showResetPasswordMessage("");
+
+
+  if (!isValidUsername(name)) {
+
+    showResetPasswordMessage(
+      "ログイン名は2～20文字の日本語・英数字・_・-で入力してください。"
+    );
+
+    return;
+  }
+
+
+  if (password.length < 8) {
+
+    showResetPasswordMessage(
+      "パスワードは8文字以上にしてください。"
+    );
+
+    return;
+  }
+
+
+  if (
+    password !== confirmPassword
+  ) {
+
+    showResetPasswordMessage(
+      "パスワードが一致していません。"
+    );
+
+    return;
+  }
+
+
+  try {
+
+    showResetPasswordMessage(
+      "更新しています..."
+    );
+
+
+    const { data, error } =
+      await supabaseClient.functions.invoke(
+        "reset-password",
+        {
+          body: {
+            name,
+            password
+          }
+        }
+      );
+
+
+    if (error) {
+
+      console.error(
+        "Password reset function error:",
+        error
+      );
+
+      showResetPasswordMessage(
+        "パスワードの更新に失敗しました。"
+      );
+
+      return;
+    }
+
+
+    if (
+      !data ||
+      !data.success
+    ) {
+
+      showResetPasswordMessage(
+        data?.message ||
+        "パスワードの更新に失敗しました。"
+      );
+
+      return;
+    }
+
+
+    nameInput.value = "";
+    passwordInput.value = "";
+    confirmInput.value = "";
+
+
+    showResetPasswordMessage(
+      "パスワードを更新しました。ログイン画面に戻ります。"
+    );
+
+
+    setTimeout(() => {
+
+      showScreen(
+        "loginScreen"
+      );
+
+      clearResetPasswordForm();
+
+    }, 1200);
+
+
+  } catch (error) {
+
+    console.error(
+      "Password reset error:",
+      error
+    );
+
+    showResetPasswordMessage(
+      "パスワード更新中にエラーが発生しました。"
+    );
   }
 }
 
@@ -536,6 +815,7 @@ async function signup() {
     return;
   }
 
+
   const nameInput =
     document.getElementById(
       "signupName"
@@ -551,6 +831,7 @@ async function signup() {
       "signupPasswordConfirm"
     );
 
+
   if (
     !nameInput ||
     !passwordInput ||
@@ -558,6 +839,7 @@ async function signup() {
   ) {
     return;
   }
+
 
   const name =
     nameInput.value.trim();
@@ -567,6 +849,7 @@ async function signup() {
 
   const confirmPassword =
     confirmInput.value;
+
 
   showSignupMessage("");
 
@@ -607,6 +890,7 @@ async function signup() {
 
     const email =
       usernameToEmail(name);
+
 
     const { data, error } =
       await supabaseClient.auth.signUp({
@@ -667,6 +951,7 @@ async function signup() {
 
 
     showScreen("topScreen");
+
 
   } catch (error) {
 
@@ -745,6 +1030,7 @@ async function login() {
       "loginPassword"
     );
 
+
   if (
     !nameElement ||
     !passwordElement
@@ -791,6 +1077,7 @@ async function login() {
     const email =
       usernameToEmail(name);
 
+
     const { data, error } =
       await supabaseClient.auth
         .signInWithPassword({
@@ -836,6 +1123,7 @@ async function login() {
 
 
     showScreen("topScreen");
+
 
   } catch (error) {
 
@@ -948,6 +1236,7 @@ function updateUserName() {
 async function logout() {
 
   stopTimer();
+
 
   if (supabaseClient) {
 
