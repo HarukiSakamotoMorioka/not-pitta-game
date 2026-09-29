@@ -376,7 +376,6 @@ function setupEvents() {
     }
   );
 
-
   addClick(
     "collectionRankGameButton",
     () => {
@@ -547,8 +546,6 @@ function showScreen(screenId) {
     }
   });
 
-  // ゲーム画面以外へ移動したら
-  // プルダウンも閉じる
   if (screenId !== "gameScreen") {
     closeGameMenu();
   }
@@ -1165,6 +1162,7 @@ async function login() {
 
       return;
     }
+    }
 
 
     currentUser =
@@ -1175,23 +1173,16 @@ async function login() {
 
 
     if (!currentProfile) {
-
       showLoginMessage(
-        "ユーザー情報を取得できませんでした。"
+        "プロフィールの読み込みに失敗しました。"
       );
-
       return;
     }
 
 
-    updateUserName();
-
-
-    nameElement.value = "";
-    passwordElement.value = "";
-
-
     showScreen("topScreen");
+
+    updateUserName();
 
 
   } catch (error) {
@@ -1201,13 +1192,213 @@ async function login() {
     showLoginMessage(
       "ログイン中にエラーが発生しました。"
     );
+
   }
+
 }
 
 
-// ========================================
-// プロフィール取得
-// ========================================
+async function signup() {
+
+  const nameInput =
+    document.getElementById("signupName");
+
+  const passwordInput =
+    document.getElementById("signupPassword");
+
+  const passwordConfirmInput =
+    document.getElementById("signupPasswordConfirm");
+
+  const name =
+    nameInput?.value.trim() || "";
+
+  const password =
+    passwordInput?.value || "";
+
+  const passwordConfirm =
+    passwordConfirmInput?.value || "";
+
+
+  if (!name) {
+
+    showSignupMessage(
+      "ログイン名を入力してください。"
+    );
+
+    return;
+  }
+
+
+  if (name.length > 20) {
+
+    showSignupMessage(
+      "ログイン名は20文字以内にしてください。"
+    );
+
+    return;
+  }
+
+
+  if (password.length < 8) {
+
+    showSignupMessage(
+      "パスワードは8文字以上にしてください。"
+    );
+
+    return;
+  }
+
+
+  if (password !== passwordConfirm) {
+
+    showSignupMessage(
+      "パスワードが一致しません。"
+    );
+
+    return;
+  }
+
+
+  if (!supabaseClient) {
+
+    showSignupMessage(
+      "Supabaseの設定を確認してください。"
+    );
+
+    return;
+  }
+
+
+  const email =
+    `${normalizeUsername(name)}@pitta.local`;
+
+
+  showSignupMessage(
+    "アカウントを作成しています..."
+  );
+
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient.auth.signUp({
+        email,
+        password
+      });
+
+
+    if (error) {
+
+      console.error(error);
+
+      showSignupMessage(
+        "アカウント作成に失敗しました。"
+      );
+
+      return;
+    }
+
+
+    if (!data.user) {
+
+      showSignupMessage(
+        "アカウント作成に失敗しました。"
+      );
+
+      return;
+    }
+
+
+    const {
+      error: profileError
+    } =
+      await supabaseClient
+        .from("players")
+        .insert({
+          user_id: data.user.id,
+          name,
+          best_diff: null,
+          collections: [],
+          updated_at:
+            new Date().toISOString()
+        });
+
+
+    if (profileError) {
+
+      console.error(profileError);
+
+      showSignupMessage(
+        "プロフィール作成に失敗しました。"
+      );
+
+      return;
+    }
+
+
+    showSignupMessage(
+      "アカウントを作成しました。ログインしてください。"
+    );
+
+
+    if (nameInput) {
+      nameInput.value = "";
+    }
+
+    if (passwordInput) {
+      passwordInput.value = "";
+    }
+
+    if (passwordConfirmInput) {
+      passwordConfirmInput.value = "";
+    }
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    showSignupMessage(
+      "アカウント作成中にエラーが発生しました。"
+    );
+
+  }
+
+}
+
+
+async function logout() {
+
+  if (supabaseClient) {
+
+    const {
+      error
+    } =
+      await supabaseClient.auth.signOut();
+
+    if (error) {
+      console.error(error);
+    }
+
+  }
+
+
+  currentUser = null;
+  currentProfile = null;
+
+  stopTimer();
+
+  gameRunning = false;
+
+  closeGameMenu();
+
+  showScreen("loginScreen");
+
+}
+
 
 async function loadProfile() {
 
@@ -1219,512 +1410,36 @@ async function loadProfile() {
   }
 
 
-  const { data, error } =
+  const {
+    data,
+    error
+  } =
     await supabaseClient
       .from("players")
       .select("*")
-      .eq(
-        "user_id",
-        currentUser.id
-      )
-      .single();
+      .eq("user_id", currentUser.id)
+      .maybeSingle();
 
 
   if (error) {
 
     console.error(
-      "Profile loading error:",
+      "Profile load error:",
       error
     );
-
-    currentProfile = null;
 
     return null;
   }
 
 
-  currentProfile =
-    data;
+  currentProfile = data;
 
+  return data;
 
-  if (
-    !Array.isArray(
-      currentProfile.collections
-    )
-  ) {
-
-    currentProfile.collections =
-      [];
-  }
-
-
-  return currentProfile;
 }
 
 
-// ========================================
-// ユーザー名表示
-// ========================================
-
-function updateUserName() {
-
-  const name =
-    currentProfile?.name || "";
-
-
-  const topName =
-    document.getElementById(
-      "currentUserName"
-    );
-
-  const gameName =
-    document.getElementById(
-      "gameUserName"
-    );
-
-
-  if (topName) {
-
-    topName.textContent =
-      `ログイン中：${name}`;
-  }
-
-
-  if (gameName) {
-
-    gameName.textContent =
-      name;
-  }
-}
-
-
-// ========================================
-// ログアウト
-// ========================================
-
-async function logout() {
-
-  stopTimer();
-
-  closeGameMenu();
-
-
-  if (supabaseClient) {
-
-    await supabaseClient.auth.signOut();
-  }
-
-
-  currentUser = null;
-  currentProfile = null;
-
-
-  showScreen("loginScreen");
-
-  clearMessages();
-}
-
-
-// ========================================
-// 新しいゲーム開始
-// ========================================
-
-function startNewGame() {
-
-  stopTimer();
-
-  closeGameMenu();
-
-
-  /*
-   * game.json の collections に登録されている
-   * 指定秒数の中からランダムで1つ選ぶ
-   */
-  const collections =
-    Array.isArray(gameConfig?.collections)
-      ? gameConfig.collections
-      : [];
-
-
-  const validCollections =
-    collections.filter((item) => {
-
-      const time =
-        Number(item?.time);
-
-      return Number.isFinite(time);
-    });
-
-
-  /*
-   * コレクションが存在する場合
-   * → 登録されている指定秒数から選ぶ
-   */
-  if (validCollections.length > 0) {
-
-    const randomIndex =
-      Math.floor(
-        Math.random() *
-        validCollections.length
-      );
-
-    targetTime =
-      Number(
-        Number(
-          validCollections[randomIndex].time
-        ).toFixed(2)
-      );
-
-  } else {
-
-    /*
-     * collections がない場合の予備処理
-     */
-    const minTime =
-      Number(
-        gameConfig?.settings?.minTime ?? 5
-      );
-
-    const maxTime =
-      Number(
-        gameConfig?.settings?.maxTime ?? 10
-      );
-
-    targetTime =
-      Math.random() *
-        (maxTime - minTime) +
-      minTime;
-
-    targetTime =
-      Number(
-        targetTime.toFixed(2)
-      );
-  }
-
-
-  currentElapsed = 0;
-
-
-  const targetElement =
-    document.getElementById(
-      "targetTime"
-    );
-
-  const timerElement =
-    document.getElementById(
-      "timer"
-    );
-
-  const messageElement =
-    document.getElementById(
-      "gameMessage"
-    );
-
-  const gameButton =
-    document.getElementById(
-      "gameButton"
-    );
-
-
-  if (targetElement) {
-
-    targetElement.textContent =
-      targetTime.toFixed(2);
-  }
-
-
-  if (timerElement) {
-
-    timerElement.textContent =
-      "0.00";
-  }
-
-
-  if (messageElement) {
-
-    messageElement.textContent =
-      "";
-  }
-
-
-  if (gameButton) {
-
-    gameButton.textContent =
-      "スタート";
-
-    gameButton.dataset.mode =
-      "start";
-  }
-
-
-  gameRunning = false;
-}
-
-
-// ========================================
-// ゲームボタン
-// ========================================
-
-function toggleGame() {
-
-  const gameButton =
-    document.getElementById(
-      "gameButton"
-    );
-
-
-  if (!gameButton) {
-    return;
-  }
-
-
-  const mode =
-    gameButton.dataset.mode ||
-    "start";
-
-
-  if (mode === "retry") {
-
-    startNewGame();
-
-    return;
-  }
-
-
-  if (gameRunning) {
-
-    stopGame();
-
-    return;
-  }
-
-
-  startTimer();
-}
-
-
-// ========================================
-// タイマー開始
-// ========================================
-
-function startTimer() {
-
-  stopTimer();
-
-
-  gameRunning = true;
-
-  startTime =
-    performance.now();
-
-
-  const gameButton =
-    document.getElementById(
-      "gameButton"
-    );
-
-
-  if (gameButton) {
-
-    gameButton.textContent =
-      "ストップ";
-
-    gameButton.dataset.mode =
-      "running";
-  }
-
-
-  timerInterval =
-    setInterval(
-      updateTimer,
-      10
-    );
-}
-
-
-// ========================================
-// タイマー更新
-// ========================================
-
-function updateTimer() {
-
-  if (!gameRunning) {
-    return;
-  }
-
-
-  const now =
-    performance.now();
-
-
-  currentElapsed =
-    (now - startTime) /
-    1000;
-
-
-  const timerElement =
-    document.getElementById(
-      "timer"
-    );
-
-
-  if (timerElement) {
-
-    timerElement.textContent =
-      currentElapsed.toFixed(2);
-  }
-}
-
-
-// ========================================
-// タイマー停止
-// ========================================
-
-function stopTimer() {
-
-  if (
-    timerInterval !== null
-  ) {
-
-    clearInterval(
-      timerInterval
-    );
-
-    timerInterval = null;
-  }
-
-
-  gameRunning = false;
-}
-
-
-// ========================================
-// ゲーム終了
-// ========================================
-
-async function stopGame() {
-
-  if (!gameRunning) {
-    return;
-  }
-
-
-  updateTimer();
-
-  stopTimer();
-
-
-  const finalTime =
-    Number(
-      currentElapsed.toFixed(2)
-    );
-
-
-  const difference =
-    Math.abs(
-      finalTime -
-      targetTime
-    );
-
-
-  const timerElement =
-    document.getElementById(
-      "timer"
-    );
-
-  const gameButton =
-    document.getElementById(
-      "gameButton"
-    );
-
-  const message =
-    document.getElementById(
-      "gameMessage"
-    );
-
-
-  if (timerElement) {
-
-    timerElement.textContent =
-      finalTime.toFixed(2);
-  }
-
-
-  if (gameButton) {
-
-    gameButton.textContent =
-      "もう一度";
-
-    gameButton.dataset.mode =
-      "retry";
-  }
-
-
-  if (message) {
-
-    message.textContent =
-      `誤差：${difference.toFixed(2)}秒`;
-  }
-}
-
-  // ----------------------------------------
-  // 完全一致
-  // ----------------------------------------
-
-if (difference === 0) {
-  if (message) {
-    message.textContent = "ぴった！🎉";
-  }
-}
-
-// 実際に止めた時間がコレクション時間と一致するか確認
-const hiddenCollection =
-  gameConfig?.collections?.find(
-    (item) =>
-      Number(item.time).toFixed(2) ===
-      finalTime.toFixed(2)
-  );
-
-if (hiddenCollection) {
-  const unlocked =
-    Array.isArray(currentProfile?.collections)
-      ? currentProfile.collections.map(
-          (time) => Number(time).toFixed(2)
-        )
-      : [];
-
-  const collectionTime =
-    Number(hiddenCollection.time).toFixed(2);
-
-  const alreadyUnlocked =
-    unlocked.includes(collectionTime);
-
-  if (!alreadyUnlocked) {
-    await unlockCollection(collectionTime);
-
-    const url =
-      String(hiddenCollection.url || "").trim();
-
-    if (
-      hiddenCollection.category !== "成人向け" &&
-      /^https?:\/\//i.test(url)
-    ) {
-      window.location.href = url;
-      return;
-    }
-  }
-}
-
-await saveScore(difference);
-}
-
-// ========================================
-// スコア保存
-// ========================================
-
-async function saveScore(
-  difference
-) {
+async function saveScore(difference) {
 
   if (
     !supabaseClient ||
@@ -1735,39 +1450,39 @@ async function saveScore(
   }
 
 
-  const currentBest =
-    Number(
-      currentProfile.best_diff
-    );
+  const newDifference =
+    Number(difference.toFixed(2));
+
+
+  const oldDifference =
+    currentProfile.best_diff === null ||
+    currentProfile.best_diff === undefined
+      ? null
+      : Number(
+          Number(currentProfile.best_diff)
+            .toFixed(2)
+        );
 
 
   if (
-    difference >= currentBest
+    oldDifference !== null &&
+    newDifference >= oldDifference
   ) {
     return;
   }
 
 
-  const newBest =
-    Number(
-      difference.toFixed(2)
-    );
-
-
-  const { error } =
+  const {
+    error
+  } =
     await supabaseClient
       .from("players")
       .update({
-        best_diff:
-          newBest,
-
+        best_diff: newDifference,
         updated_at:
           new Date().toISOString()
       })
-      .eq(
-        "user_id",
-        currentUser.id
-      );
+      .eq("user_id", currentUser.id);
 
 
   if (error) {
@@ -1782,231 +1497,223 @@ async function saveScore(
 
 
   currentProfile.best_diff =
-    newBest;
+    newDifference;
+
 }
 
 
-// ========================================
-// コレクション解除
-// ========================================
-
 async function unlockCollection(time) {
-  if (!supabaseClient || !currentUser || !currentProfile) return;
 
-  const collections = Array.isArray(currentProfile.collections)
-    ? [...currentProfile.collections]
-    : [];
+  if (
+    !supabaseClient ||
+    !currentUser ||
+    !currentProfile
+  ) {
+    return;
+  }
+
+
+  const collections =
+    Array.isArray(
+      currentProfile.collections
+    )
+      ? [...currentProfile.collections]
+      : [];
+
 
   const normalizedCollections =
-    collections.map((value) => Number(value).toFixed(2));
+    collections.map(
+      (value) =>
+        Number(value).toFixed(2)
+    );
+
 
   const normalizedTime =
     Number(time).toFixed(2);
 
-  if (normalizedCollections.includes(normalizedTime)) {
+
+  if (
+    normalizedCollections.includes(
+      normalizedTime
+    )
+  ) {
     return;
   }
 
-  collections.push(normalizedTime);
 
-  const { error } = await supabaseClient
-    .from("players")
-    .update({
-      collections,
-      updated_at: new Date().toISOString()
-    })
-    .eq("user_id", currentUser.id);
-
-  if (error) {
-    console.error("Collection save error:", error);
-    return;
-  }
-
-  currentProfile.collections = collections;
-}
-
-
-// ========================================
-// 通常ランキング
-// ========================================
-
-async function showRanking() {
-
-  showScreen(
-    "rankScreen"
+  collections.push(
+    normalizedTime
   );
 
 
-  const rankingList =
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("players")
+      .update({
+        collections,
+        updated_at:
+          new Date().toISOString()
+      })
+      .eq("user_id", currentUser.id);
+
+
+  if (error) {
+
+    console.error(
+      "Collection save error:",
+      error
+    );
+
+    return;
+  }
+
+
+  currentProfile.collections =
+    collections;
+
+}
+
+
+function renderRanking() {
+
+  const list =
     document.getElementById(
       "rankingList"
     );
 
 
-  if (!rankingList) {
+  if (!list) {
     return;
   }
 
 
-  rankingList.innerHTML =
+  list.innerHTML =
     "<p>読み込み中...</p>";
 
 
   if (!supabaseClient) {
 
-    rankingList.innerHTML =
-      "<p>Supabaseを設定するとランキングが表示されます。</p>";
+    list.innerHTML =
+      "<p>Supabaseの設定を確認してください。</p>";
 
     return;
   }
 
 
-  const { data, error } =
+  loadRanking(list);
+
+}
+
+
+async function loadRanking(list) {
+
+  const {
+    data,
+    error
+  } =
     await supabaseClient
       .from("players")
       .select(
-        "name, best_diff"
+        "name,best_diff"
+      )
+      .not(
+        "best_diff",
+        "is",
+        null
       )
       .order(
         "best_diff",
         {
           ascending: true
         }
-      );
+      )
+      .limit(100);
 
 
   if (error) {
 
     console.error(error);
 
-    rankingList.innerHTML =
-      "<p>ランキングを取得できませんでした。</p>";
+    list.innerHTML =
+      "<p>ランキングを読み込めませんでした。</p>";
 
     return;
   }
 
 
-  if (
-    !data ||
-    data.length === 0
-  ) {
+  if (!data || data.length === 0) {
 
-    rankingList.innerHTML =
+    list.innerHTML =
       "<p>まだランキングがありません。</p>";
 
     return;
   }
 
 
-  rankingList.innerHTML =
-    "";
-
-
-  let previousScore =
-    null;
-
-  let currentRank =
-    0;
+  list.innerHTML = "";
 
 
   data.forEach(
     (player, index) => {
-
-      const score =
-        Number(
-          player.best_diff
-        );
-
-
-      if (
-        previousScore === null ||
-        score !== previousScore
-      ) {
-
-        currentRank =
-          index + 1;
-      }
-
-
-      previousScore =
-        score;
-
 
       const item =
         document.createElement(
           "div"
         );
 
-
       item.className =
         "ranking-item";
 
 
-      if (
-        currentProfile &&
-        player.name ===
-          currentProfile.name
-      ) {
-
-        item.classList.add(
-          "current-user"
+      const rank =
+        document.createElement(
+          "span"
         );
-      }
+
+      rank.className =
+        "ranking-rank";
+
+      rank.textContent =
+        `${index + 1}位`;
 
 
-      /*
-       * 0.00秒なら👑
-       */
-      const crown =
-        score === 0
-          ? " 👑"
-          : "";
+      const name =
+        document.createElement(
+          "span"
+        );
+
+      name.className =
+        "ranking-name";
+
+      name.textContent =
+        player.name;
 
 
-      item.innerHTML = `
-        <div class="ranking-position">
-          ${currentRank}位
-        </div>
+      const score =
+        document.createElement(
+          "span"
+        );
 
-        <div class="ranking-name">
-          ${escapeHtml(player.name)}
-        </div>
+      score.className =
+        "ranking-score";
 
-        <div class="ranking-score">
-          ±${score.toFixed(2)}秒${crown}
-        </div>
-      `;
+      score.textContent =
+        `${Number(player.best_diff).toFixed(2)}秒`;
 
 
-      rankingList.appendChild(
-        item
-      );
+      item.appendChild(rank);
+      item.appendChild(name);
+      item.appendChild(score);
+
+      list.appendChild(item);
+
     }
   );
+
 }
 
-
-// ========================================
-// コレクション表示
-// ========================================
-
-async function showCollection() {
-
-  showScreen(
-    "collectionScreen"
-  );
-
-
-  await loadProfile();
-
-
-  renderCollection();
-}
-
-
-// ========================================
-// コレクション描画
-// ========================================
 
 function renderCollection() {
 
@@ -2015,71 +1722,71 @@ function renderCollection() {
       "collectionGrid"
     );
 
-  const countElement =
+  const count =
     document.getElementById(
       "collectionCount"
     );
 
 
-  if (
-    !grid ||
-    !countElement ||
-    !gameConfig
-  ) {
+  if (!grid) {
     return;
   }
 
 
-  const items =
-    getSortedCollections();
-
-
-  /*
-   * DBに昔の文字列データが残っていても
-   * 数値に変換して判定する
-   */
-  const unlocked =
+  const collections =
     Array.isArray(
       currentProfile?.collections
     )
-      ? currentProfile.collections.map(
-          (value) =>
-            Number(value)
-        )
+      ? currentProfile.collections
       : [];
 
 
-  countElement.textContent =
-    `${unlocked.length} / ${items.length}`;
+  const unlocked =
+    new Set(
+      collections.map(
+        (value) =>
+          Number(value).toFixed(2)
+      )
+    );
 
 
-  if (
-    unlocked.length ===
-    items.length
-  ) {
+  const allCollections =
+    Array.isArray(
+      gameConfig?.collections
+    )
+      ? gameConfig.collections
+      : [];
 
-    countElement.textContent +=
-      "　コンプリート！👑";
+
+  const unlockedCount =
+    allCollections.filter(
+      (item) =>
+        unlocked.has(
+          Number(item.time).toFixed(2)
+        )
+    ).length;
+
+
+  if (count) {
+
+    count.textContent =
+      `${unlockedCount} / ${allCollections.length}`;
+
   }
 
 
-  grid.innerHTML =
-    "";
+  grid.innerHTML = "";
 
 
-  items.forEach(
+  allCollections.forEach(
     (item) => {
 
-      const itemTime =
-        Number(item.time);
+      const time =
+        Number(item.time).toFixed(2);
 
 
       const isUnlocked =
-        unlocked.some(
-          (time) =>
-            Number(time).toFixed(2) ===
-            Number(item.time).toFixed(2)
-        );
+        unlocked.has(time);
 
 
       const element =
@@ -2092,53 +1799,74 @@ function renderCollection() {
         "collection-item";
 
 
-      element.classList.add(
-        isUnlocked
-          ? "unlocked"
-          : "locked"
-      );
-
-
       if (
-        item.category ===
-        "成人向け"
+        item.category === "成人向け"
       ) {
-
         element.classList.add(
           "adult"
         );
       }
 
 
-      const name =
-        isUnlocked
-          ? item.name
-          : "???";
+      if (!isUnlocked) {
+
+        element.classList.add(
+          "locked"
+        );
+
+      }
 
 
-      element.innerHTML = `
-        <div class="collection-trophy">
-          🏆
-        </div>
+      const timeElement =
+        document.createElement(
+          "div"
+        );
 
-        <div class="collection-time">
-          ${escapeHtml(
-            Number(item.time).toFixed(2)
-          )}秒
-        </div>
+      timeElement.className =
+        "collection-time";
 
-        <div class="collection-name">
-          ${escapeHtml(name)}
-        </div>
-      `;
+      timeElement.textContent =
+        `${time}秒`;
+
+
+      const nameElement =
+        document.createElement(
+          "div"
+        );
+
+      nameElement.className =
+        "collection-name";
+
+
+      if (isUnlocked) {
+
+        nameElement.textContent =
+          item.name;
+
+      } else {
+
+        nameElement.textContent =
+          "？？？";
+
+      }
+
+
+      element.appendChild(
+        timeElement
+      );
+
+      element.appendChild(
+        nameElement
+      );
 
 
       /*
-       * 獲得済み ＋ URLあり
-       * → クリックでリンクへ
+       * 健全なコレクションだけ、
+       * URLクリックを有効にする。
        */
       if (
         isUnlocked &&
+        item.category !== "成人向け" &&
         item.url &&
         /^https?:\/\//i.test(
           String(item.url).trim()
@@ -2158,81 +1886,24 @@ function renderCollection() {
               "_blank",
               "noopener,noreferrer"
             );
+
           }
         );
+
       }
 
 
       grid.appendChild(
         element
       );
+
     }
   );
+
 }
 
 
-// ========================================
-// コレクション並び順
-// 健全 → その他
-// それぞれ時間順
-// ========================================
-
-function getSortedCollections() {
-
-  if (
-    !gameConfig?.collections
-  ) {
-    return [];
-  }
-
-
-  return [
-    ...gameConfig.collections
-  ].sort(
-    (a, b) => {
-
-      const categoryA =
-        a.category === "健全"
-          ? 0
-          : 1;
-
-
-      const categoryB =
-        b.category === "健全"
-          ? 0
-          : 1;
-
-
-      if (
-        categoryA !== categoryB
-      ) {
-
-        return (
-          categoryA -
-          categoryB
-        );
-      }
-
-
-      return (
-        Number(a.time) -
-        Number(b.time)
-      );
-    }
-  );
-}
-
-
-// ========================================
-// コレクションランキング
-// ========================================
-
-async function showCollectionRanking() {
-
-  showScreen(
-    "collectionRankScreen"
-  );
-
+function renderCollectionRanking() {
 
   const list =
     document.getElementById(
@@ -2252,17 +1923,27 @@ async function showCollectionRanking() {
   if (!supabaseClient) {
 
     list.innerHTML =
-      "<p>Supabaseを設定するとランキングが表示されます。</p>";
+      "<p>Supabaseの設定を確認してください。</p>";
 
     return;
   }
 
 
-  const { data, error } =
+  loadCollectionRanking(list);
+
+}
+
+
+async function loadCollectionRanking(list) {
+
+  const {
+    data,
+    error
+  } =
     await supabaseClient
       .from("players")
       .select(
-        "name, collections"
+        "name,collections"
       );
 
 
@@ -2271,71 +1952,70 @@ async function showCollectionRanking() {
     console.error(error);
 
     list.innerHTML =
-      "<p>ランキングを取得できませんでした。</p>";
+      "<p>コレクションランキングを読み込めませんでした。</p>";
 
     return;
   }
 
 
-  const total =
-    gameConfig?.collections?.length || 0;
+  const allCollections =
+    Array.isArray(
+      gameConfig?.collections
+    )
+      ? gameConfig.collections
+      : [];
 
 
-  const ranking =
-    (data || []).map(
-      (player) => {
-
-        const collections =
-          Array.isArray(
-            player.collections
-          )
-            ? player.collections
-            : [];
-
-
-        return {
-          name:
-            player.name,
-
-          count:
-            Math.min(
-              collections.length,
-              total
-            )
-        };
-      }
+  const collectionTimes =
+    allCollections.map(
+      (item) =>
+        Number(item.time).toFixed(2)
     );
 
 
-  ranking.sort(
-    (a, b) => {
+  const ranking =
+    (data || [])
+      .map(
+        (player) => {
 
-      if (
-        b.count !== a.count
-      ) {
-
-        return (
-          b.count -
-          a.count
-        );
-      }
+          const collections =
+            Array.isArray(
+              player.collections
+            )
+              ? player.collections
+              : [];
 
 
-      return a.name.localeCompare(
-        b.name,
-        "ja"
+          const uniqueCollections =
+            new Set(
+              collections.map(
+                (value) =>
+                  Number(value).toFixed(2)
+              )
+            );
+
+
+          const count =
+            collectionTimes.filter(
+              (time) =>
+                uniqueCollections.has(time)
+            ).length;
+
+
+          return {
+            name: player.name,
+            count
+          };
+
+        }
+      )
+      .sort(
+        (a, b) =>
+          b.count - a.count
       );
-    }
-  );
 
 
-  list.innerHTML =
-    "";
-
-
-  if (
-    ranking.length === 0
-  ) {
+  if (ranking.length === 0) {
 
     list.innerHTML =
       "<p>まだランキングがありません。</p>";
@@ -2344,113 +2024,485 @@ async function showCollectionRanking() {
   }
 
 
-  let previousCount =
-    null;
-
-  let currentRank =
-    0;
+  list.innerHTML = "";
 
 
   ranking.forEach(
     (player, index) => {
-
-      if (
-        previousCount === null ||
-        player.count !==
-          previousCount
-      ) {
-
-        currentRank =
-          index + 1;
-      }
-
-
-      previousCount =
-        player.count;
-
 
       const item =
         document.createElement(
           "div"
         );
 
-
       item.className =
-        "collection-ranking-item";
+        "ranking-item";
 
 
-      if (
-        currentProfile &&
-        player.name ===
-          currentProfile.name
-      ) {
-
-        item.classList.add(
-          "current-user"
+      const rank =
+        document.createElement(
+          "span"
         );
-      }
+
+      rank.className =
+        "ranking-rank";
+
+      rank.textContent =
+        `${index + 1}位`;
 
 
-      const crown =
-        player.count === total
-          ? " 👑"
-          : "";
+      const name =
+        document.createElement(
+          "span"
+        );
+
+      name.className =
+        "ranking-name";
+
+      name.textContent =
+        player.name;
 
 
-      item.innerHTML = `
-        <div class="collection-ranking-position">
-          ${currentRank}位
-        </div>
+      const score =
+        document.createElement(
+          "span"
+        );
 
-        <div class="collection-ranking-name">
-          ${escapeHtml(player.name)}
-        </div>
+      score.className =
+        "ranking-score";
 
-        <div class="collection-ranking-count">
-          ${player.count} / ${total}${crown}
-        </div>
-      `;
+      score.textContent =
+        `${player.count}個`;
 
 
-      list.appendChild(
-        item
-      );
+      item.appendChild(rank);
+      item.appendChild(name);
+      item.appendChild(score);
+
+      list.appendChild(item);
+
     }
   );
+
 }
 
 
-// ========================================
-// HTMLエスケープ
-// ========================================
+function showScreen(screenId) {
+
+  const screens =
+    document.querySelectorAll(
+      ".screen"
+    );
+
+
+  screens.forEach(
+    (screen) => {
+
+      screen.classList.add(
+        "hidden"
+      );
+
+    }
+  );
+
+
+  const target =
+    document.getElementById(
+      screenId
+    );
+
+
+  if (target) {
+
+    target.classList.remove(
+      "hidden"
+    );
+
+  }
+
+}
+
+
+function updateUserName() {
+
+  const name =
+    currentProfile?.name ||
+    currentUser?.email ||
+    "";
+
+
+  const topName =
+    document.getElementById(
+      "currentUserName"
+    );
+
+
+  const gameName =
+    document.getElementById(
+      "gameUserName"
+    );
+
+
+  if (topName) {
+    topName.textContent =
+      name;
+  }
+
+
+  if (gameName) {
+    gameName.textContent =
+      name;
+  }
+
+}
+
+
+function showLoginMessage(message) {
+
+  const element =
+    document.getElementById(
+      "loginMessage"
+    );
+
+
+  if (element) {
+
+    element.textContent =
+      message;
+
+  }
+
+}
+
+
+function showSignupMessage(message) {
+
+  const element =
+    document.getElementById(
+      "signupMessage"
+    );
+
+
+  if (element) {
+
+    element.textContent =
+      message;
+
+  }
+
+}
+
+
+function showResetMessage(message) {
+
+  const element =
+    document.getElementById(
+      "resetPasswordMessage"
+    );
+
+
+  if (element) {
+
+    element.textContent =
+      message;
+
+  }
+
+}
+
+
+function showGameMessage(message) {
+
+  const element =
+    document.getElementById(
+      "gameMessage"
+    );
+
+
+  if (element) {
+
+    element.textContent =
+      message;
+
+  }
+
+}
+
+
+function closeGameMenu() {
+
+  const dropdown =
+    document.getElementById(
+      "gameMenuDropdown"
+    );
+
+
+  if (dropdown) {
+
+    dropdown.classList.add(
+      "hidden"
+    );
+
+  }
+
+}
+
+
+function toggleGameMenu() {
+
+  const dropdown =
+    document.getElementById(
+      "gameMenuDropdown"
+    );
+
+
+  if (!dropdown) {
+    return;
+  }
+
+
+  dropdown.classList.toggle(
+    "hidden"
+  );
+
+}
+
+
+function updateTimer() {
+
+  if (!gameRunning) {
+    return;
+  }
+
+
+  currentElapsed =
+    (performance.now() - startTimestamp)
+    / 1000;
+
+
+  const timer =
+    document.getElementById(
+      "timer"
+    );
+
+
+  if (timer) {
+
+    timer.textContent =
+      currentElapsed.toFixed(2);
+
+  }
+
+}
+
+
+function startTimer() {
+
+  stopTimer();
+
+
+  gameRunning = true;
+
+  startTimestamp =
+    performance.now();
+
+
+  timerInterval =
+    setInterval(
+      updateTimer,
+      10
+    );
+
+}
+
+
+function stopTimer() {
+
+  if (timerInterval !== null) {
+
+    clearInterval(
+      timerInterval
+    );
+
+    timerInterval = null;
+
+  }
+
+
+  gameRunning = false;
+
+}
+
+
+function getCollectionByTime(time) {
+
+  const collections =
+    Array.isArray(
+      gameConfig?.collections
+    )
+      ? gameConfig.collections
+      : [];
+
+
+  const normalizedTime =
+    Number(time).toFixed(2);
+
+
+  return collections.find(
+    (item) =>
+      Number(item.time).toFixed(2) ===
+      normalizedTime
+  );
+
+}
+
+
+function startNewGame() {
+
+  stopTimer();
+
+  closeGameMenu();
+
+
+  const minTime =
+    Number(
+      gameConfig?.settings?.minTime ??
+      5
+    );
+
+
+  const maxTime =
+    Number(
+      gameConfig?.settings?.maxTime ??
+      10
+    );
+
+
+  targetTime =
+    Math.random() *
+      (maxTime - minTime) +
+      minTime;
+
+
+  targetTime =
+    Number(
+      targetTime.toFixed(2)
+    );
+
+
+  currentElapsed = 0;
+
+
+  const targetElement =
+    document.getElementById(
+      "targetTime"
+    );
+
+
+  const timerElement =
+    document.getElementById(
+      "timer"
+    );
+
+
+  const messageElement =
+    document.getElementById(
+      "gameMessage"
+    );
+
+
+  const gameButton =
+    document.getElementById(
+      "gameButton"
+    );
+
+
+  if (targetElement) {
+
+    targetElement.textContent =
+      targetTime.toFixed(2);
+
+  }
+
+
+  if (timerElement) {
+
+    timerElement.textContent =
+      "0.00";
+
+  }
+
+
+  if (messageElement) {
+
+    messageElement.textContent =
+      "";
+
+  }
+
+
+  if (gameButton) {
+
+    gameButton.textContent =
+      "スタート";
+
+    gameButton.dataset.mode =
+      "start";
+
+  }
+
+
+  gameRunning = false;
+
+}
+
+
+function formatTime(value) {
+
+  return Number(
+    value
+  ).toFixed(2);
+
+}
+
+
+function normalizeUsername(name) {
+
+  return String(name)
+    .trim()
+    .toLowerCase()
+    .replace(
+      /[^a-z0-9_-]/g,
+      ""
+    );
+
+}
+
 
 function escapeHtml(value) {
 
   return String(value)
-
     .replace(
       /&/g,
       "&amp;"
     )
-
     .replace(
       /</g,
       "&lt;"
     )
-
     .replace(
       />/g,
       "&gt;"
     )
-
     .replace(
       /"/g,
       "&quot;"
     )
-
     .replace(
       /'/g,
       "&#039;"
     );
+
 }
 
+  
