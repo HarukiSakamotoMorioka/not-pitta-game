@@ -754,51 +754,9 @@ async function resetPassword() {
 // ログイン名処理
 // ========================================
 
-function normalizeUsername(name) {
-
-  return name
-    .trim()
-    .normalize("NFKC")
-    .toLowerCase();
-}
-
-
-function isValidUsername(name) {
-
-  return /^[\p{L}\p{N}_-]{2,20}$/u.test(
-    name
-  );
-}
-
-
 function usernameToEmail(name) {
-
-  const normalized =
-    normalizeUsername(name);
-
-  const bytes =
-    new TextEncoder().encode(
-      normalized
-    );
-
-  let binary = "";
-
-  bytes.forEach((byte) => {
-
-    binary += String.fromCharCode(
-      byte
-    );
-  });
-
-  const encoded =
-    btoa(binary)
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=+$/, "");
-
-  return `u-${encoded}@pitta.local`;
+  return `${normalizeUsername(name)}@pitta.local`;
 }
-
 
 // ========================================
 // 新規作成
