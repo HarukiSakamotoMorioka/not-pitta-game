@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function initialize() {
   try {
+
     const response =
       await fetch("game.json?v=" + Date.now());
 
@@ -38,7 +39,8 @@ async function initialize() {
       );
     }
 
-    gameConfig = await response.json();
+    gameConfig =
+      await response.json();
 
     console.log(
       "読み込んだgameConfig:",
@@ -51,7 +53,7 @@ async function initialize() {
 
     if (!supabaseClient) {
       showLoginMessage(
-        "Supabase未設定です。現在は画面確認モードです。"
+        "Supabase未設定です。"
       );
     }
 
@@ -90,6 +92,15 @@ function initializeSupabase() {
 
   try {
 
+    if (
+      !window.supabase ||
+      !window.supabase.createClient
+    ) {
+      throw new Error(
+        "Supabase CDNを読み込めませんでした。"
+      );
+    }
+
     supabaseClient =
       window.supabase.createClient(
         url,
@@ -122,255 +133,248 @@ function setupEvents() {
   // ログイン
   // ----------------------------------------
 
-  document
-    .getElementById("loginButton")
-    .addEventListener(
-      "click",
-      login
-    );
+  addClick(
+    "loginButton",
+    login
+  );
 
 
   // ----------------------------------------
   // 新規作成へ
   // ----------------------------------------
 
-  document
-    .getElementById("goSignupButton")
-    .addEventListener(
-      "click",
-      () => {
-        showScreen("signupScreen");
-        clearMessages();
-      }
-    );
+  addClick(
+    "goSignupButton",
+    () => {
+      showScreen("signupScreen");
+      clearMessages();
+    }
+  );
 
-  document
-    .getElementById("loginToSignupTop")
-    .addEventListener(
-      "click",
-      () => {
-        showScreen("signupScreen");
-        clearMessages();
-      }
-    );
+  addClick(
+    "loginToSignupTop",
+    () => {
+      showScreen("signupScreen");
+      clearMessages();
+    }
+  );
 
 
   // ----------------------------------------
   // ログインへ
   // ----------------------------------------
 
-  document
-    .getElementById("goLoginButton")
-    .addEventListener(
-      "click",
-      () => {
-        showScreen("loginScreen");
-        clearMessages();
-      }
-    );
+  addClick(
+    "goLoginButton",
+    () => {
+      showScreen("loginScreen");
+      clearMessages();
+    }
+  );
 
-  document
-    .getElementById("signupToLoginTop")
-    .addEventListener(
-      "click",
-      () => {
-        showScreen("loginScreen");
-        clearMessages();
-      }
-    );
+  addClick(
+    "signupToLoginTop",
+    () => {
+      showScreen("loginScreen");
+      clearMessages();
+    }
+  );
 
 
   // ----------------------------------------
   // 新規作成
   // ----------------------------------------
 
-  document
-    .getElementById("signupButton")
-    .addEventListener(
-      "click",
-      signup
-    );
+  addClick(
+    "signupButton",
+    signup
+  );
 
 
   // ----------------------------------------
-  // トップ画面のログアウト
+  // ログアウト
   // ----------------------------------------
 
-  document
-    .getElementById("logoutButton")
-    .addEventListener(
-      "click",
-      logout
-    );
+  addClick(
+    "logoutButton",
+    logout
+  );
 
-
-  // ----------------------------------------
-  // ゲーム画面のログアウト
-  // ----------------------------------------
-
-  document
-    .getElementById("gameLogoutButton")
-    .addEventListener(
-      "click",
-      logout
-    );
+  addClick(
+    "gameLogoutButton",
+    logout
+  );
 
 
   // ----------------------------------------
   // ゲーム開始
   // ----------------------------------------
 
-  document
-    .getElementById("startGameButton")
-    .addEventListener(
-      "click",
-      () => {
+  addClick(
+    "startGameButton",
+    () => {
 
-        showScreen("gameScreen");
+      showScreen("gameScreen");
 
-        startNewGame();
-      }
-    );
+      startNewGame();
+    }
+  );
 
 
   // ----------------------------------------
   // ゲームボタン
   // ----------------------------------------
 
-  document
-    .getElementById("gameButton")
-    .addEventListener(
-      "click",
-      toggleGame
-    );
+  addClick(
+    "gameButton",
+    toggleGame
+  );
 
 
   // ----------------------------------------
   // 通常ランキング
   // ----------------------------------------
 
-  document
-    .getElementById("gameRankingButton")
-    .addEventListener(
-      "click",
-      showRanking
-    );
+  addClick(
+    "gameRankingButton",
+    showRanking
+  );
 
-
-  document
-    .getElementById("rankBackButton")
-    .addEventListener(
-      "click",
-      () => {
-        showScreen("gameScreen");
-      }
-    );
+  addClick(
+    "rankBackButton",
+    () => {
+      showScreen("gameScreen");
+    }
+  );
 
 
   // ----------------------------------------
   // コレクション
   // ----------------------------------------
 
-  document
-    .getElementById("rankCollectionButton")
-    .addEventListener(
-      "click",
-      showCollection
-    );
+  addClick(
+    "rankCollectionButton",
+    showCollection
+  );
 
-
-  document
-    .getElementById("collectionBackButton")
-    .addEventListener(
-      "click",
-      () => {
-        showScreen("rankScreen");
-      }
-    );
+  addClick(
+    "collectionBackButton",
+    () => {
+      showScreen("rankScreen");
+    }
+  );
 
 
   // ----------------------------------------
-  // ゲーム画面
+  // ゲーム
   // → コレクションランキング
   // ----------------------------------------
 
-  document
-    .getElementById("collectionRankingButton")
-    .addEventListener(
-      "click",
-      showCollectionRanking
-    );
+  addClick(
+    "collectionRankingButton",
+    showCollectionRanking
+  );
 
 
   // ----------------------------------------
-  // コレクション画面
+  // コレクション
   // → コレクションランキング
   // ----------------------------------------
 
-  document
-    .getElementById(
-      "collectionRankingButtonFromCollection"
-    )
-    .addEventListener(
-      "click",
-      showCollectionRanking
-    );
+  addClick(
+    "collectionRankingButtonFromCollection",
+    showCollectionRanking
+  );
 
 
   // ----------------------------------------
   // コレクションランキング
   // ----------------------------------------
 
-  document
-    .getElementById("collectionRankBackButton")
-    .addEventListener(
-      "click",
-      () => {
-        showScreen("collectionScreen");
-      }
-    );
+  addClick(
+    "collectionRankBackButton",
+    () => {
+      showScreen("collectionScreen");
+    }
+  );
 
-
-  document
-    .getElementById("collectionRankGameButton")
-    .addEventListener(
-      "click",
-      () => {
-        showScreen("gameScreen");
-      }
-    );
+  addClick(
+    "collectionRankGameButton",
+    () => {
+      showScreen("gameScreen");
+    }
+  );
 
 
   // ----------------------------------------
   // Enterキー
   // ----------------------------------------
 
-  document
-    .getElementById("loginPassword")
-    .addEventListener(
-      "keydown",
-      (event) => {
+  addKeydown(
+    "loginPassword",
+    (event) => {
 
-        if (event.key === "Enter") {
-          login();
-        }
+      if (event.key === "Enter") {
+        login();
       }
+    }
+  );
+
+  addKeydown(
+    "signupPasswordConfirm",
+    (event) => {
+
+      if (event.key === "Enter") {
+        signup();
+      }
+    }
+  );
+}
+
+
+// ========================================
+// イベント安全設定
+// ========================================
+
+function addClick(id, handler) {
+
+  const element =
+    document.getElementById(id);
+
+  if (!element) {
+
+    console.warn(
+      `イベント対象が見つかりません: #${id}`
     );
 
+    return;
+  }
 
-  document
-    .getElementById(
-      "signupPasswordConfirm"
-    )
-    .addEventListener(
-      "keydown",
-      (event) => {
+  element.addEventListener(
+    "click",
+    handler
+  );
+}
 
-        if (event.key === "Enter") {
-          signup();
-        }
-      }
+
+function addKeydown(id, handler) {
+
+  const element =
+    document.getElementById(id);
+
+  if (!element) {
+
+    console.warn(
+      `イベント対象が見つかりません: #${id}`
     );
+
+    return;
+  }
+
+  element.addEventListener(
+    "keydown",
+    handler
+  );
 }
 
 
@@ -400,10 +404,13 @@ function showScreen(screenId) {
     }
 
     if (id === screenId) {
+
       element.classList.remove(
         "hidden"
       );
+
     } else {
+
       element.classList.add(
         "hidden"
       );
@@ -440,17 +447,27 @@ function clearMessages() {
 
 function showLoginMessage(message) {
 
-  document.getElementById(
-    "loginMessage"
-  ).textContent = message;
+  const element =
+    document.getElementById(
+      "loginMessage"
+    );
+
+  if (element) {
+    element.textContent = message;
+  }
 }
 
 
 function showSignupMessage(message) {
 
-  document.getElementById(
-    "signupMessage"
-  ).textContent = message;
+  const element =
+    document.getElementById(
+      "signupMessage"
+    );
+
+  if (element) {
+    element.textContent = message;
+  }
 }
 
 
@@ -467,11 +484,6 @@ function normalizeUsername(name) {
 }
 
 
-// ========================================
-// ログイン名チェック
-// 日本語・英数字・_・-に対応
-// ========================================
-
 function isValidUsername(name) {
 
   return /^[\p{L}\p{N}_-]{2,20}$/u.test(
@@ -479,11 +491,6 @@ function isValidUsername(name) {
   );
 }
 
-
-// ========================================
-// ログイン名 → Supabase用メールアドレス
-// 日本語でも安全に変換
-// ========================================
 
 function usernameToEmail(name) {
 
@@ -498,6 +505,7 @@ function usernameToEmail(name) {
   let binary = "";
 
   bytes.forEach((byte) => {
+
     binary += String.fromCharCode(
       byte
     );
@@ -543,6 +551,14 @@ async function signup() {
       "signupPasswordConfirm"
     );
 
+  if (
+    !nameInput ||
+    !passwordInput ||
+    !confirmInput
+  ) {
+    return;
+  }
+
   const name =
     nameInput.value.trim();
 
@@ -555,10 +571,6 @@ async function signup() {
   showSignupMessage("");
 
 
-  // ----------------------------------------
-  // ログイン名チェック
-  // ----------------------------------------
-
   if (!isValidUsername(name)) {
 
     showSignupMessage(
@@ -569,10 +581,6 @@ async function signup() {
   }
 
 
-  // ----------------------------------------
-  // パスワードチェック
-  // ----------------------------------------
-
   if (password.length < 8) {
 
     showSignupMessage(
@@ -582,10 +590,6 @@ async function signup() {
     return;
   }
 
-
-  // ----------------------------------------
-  // パスワード確認
-  // ----------------------------------------
 
   if (
     password !== confirmPassword
@@ -599,10 +603,6 @@ async function signup() {
   }
 
 
-  // ----------------------------------------
-  // アカウント作成
-  // ----------------------------------------
-
   try {
 
     const email =
@@ -610,8 +610,8 @@ async function signup() {
 
     const { data, error } =
       await supabaseClient.auth.signUp({
-        email: email,
-        password: password
+        email,
+        password
       });
 
 
@@ -627,46 +627,44 @@ async function signup() {
     }
 
 
-    // ----------------------------------------
-    // メール確認が有効な場合
-    // ----------------------------------------
-
     if (!data.session) {
 
       showSignupMessage(
-        "アカウントを作成しました。Supabaseのメール確認設定が有効になっています。確認設定をOFFにしてください。"
+        "アカウントは作成されましたが、メール確認が必要な設定になっています。Supabaseの「Confirm email」をOFFにしてください。"
       );
 
       return;
     }
 
 
-    // ----------------------------------------
-    // ユーザー情報保存
-    // ----------------------------------------
-
     currentUser =
       data.user;
 
-    await createProfile(name);
+
+    const profileCreated =
+      await createProfile(name);
+
+
+    if (!profileCreated) {
+
+      showSignupMessage(
+        "アカウントは作成されましたが、ユーザー情報の保存に失敗しました。"
+      );
+
+      return;
+    }
+
 
     await loadProfile();
 
+
     updateUserName();
 
-
-    // ----------------------------------------
-    // 入力欄クリア
-    // ----------------------------------------
 
     nameInput.value = "";
     passwordInput.value = "";
     confirmInput.value = "";
 
-
-    // ----------------------------------------
-    // トップ画面
-    // ----------------------------------------
 
     showScreen("topScreen");
 
@@ -691,8 +689,9 @@ async function createProfile(name) {
     !supabaseClient ||
     !currentUser
   ) {
-    return;
+    return false;
   }
+
 
   const { error } =
     await supabaseClient
@@ -711,7 +710,12 @@ async function createProfile(name) {
       "Profile creation error:",
       error
     );
+
+    return false;
   }
+
+
+  return true;
 }
 
 
@@ -731,21 +735,29 @@ async function login() {
   }
 
 
-  const name =
-    document
-      .getElementById(
-        "loginName"
-      )
-      .value
-      .trim();
+  const nameElement =
+    document.getElementById(
+      "loginName"
+    );
 
+  const passwordElement =
+    document.getElementById(
+      "loginPassword"
+    );
+
+  if (
+    !nameElement ||
+    !passwordElement
+  ) {
+    return;
+  }
+
+
+  const name =
+    nameElement.value.trim();
 
   const password =
-    document
-      .getElementById(
-        "loginPassword"
-      )
-      .value;
+    passwordElement.value;
 
 
   showLoginMessage("");
@@ -782,8 +794,8 @@ async function login() {
     const { data, error } =
       await supabaseClient.auth
         .signInWithPassword({
-          email: email,
-          password: password
+          email,
+          password
         });
 
 
@@ -819,13 +831,8 @@ async function login() {
     updateUserName();
 
 
-    document.getElementById(
-      "loginName"
-    ).value = "";
-
-    document.getElementById(
-      "loginPassword"
-    ).value = "";
+    nameElement.value = "";
+    passwordElement.value = "";
 
 
     showScreen("topScreen");
@@ -854,6 +861,7 @@ async function loadProfile() {
     return null;
   }
 
+
   const { data, error } =
     await supabaseClient
       .from("players")
@@ -878,7 +886,8 @@ async function loadProfile() {
   }
 
 
-  currentProfile = data;
+  currentProfile =
+    data;
 
 
   if (
@@ -945,8 +954,10 @@ async function logout() {
     await supabaseClient.auth.signOut();
   }
 
+
   currentUser = null;
   currentProfile = null;
+
 
   showScreen("loginScreen");
 
@@ -965,18 +976,14 @@ function startNewGame() {
 
   const minTime =
     Number(
-      gameConfig.settings.minTime
+      gameConfig?.settings?.minTime ?? 5
     );
 
   const maxTime =
     Number(
-      gameConfig.settings.maxTime
+      gameConfig?.settings?.maxTime ?? 10
     );
 
-
-  // ----------------------------------------
-  // 目標時間をランダム決定
-  // ----------------------------------------
 
   targetTime =
     Math.random() *
@@ -993,31 +1000,20 @@ function startNewGame() {
   currentElapsed = 0;
 
 
-  // ----------------------------------------
-  // 表示リセット
-  // ----------------------------------------
+  const targetElement =
+    document.getElementById(
+      "targetTime"
+    );
 
-  document.getElementById(
-    "targetTime"
-  ).textContent =
-    targetTime.toFixed(2);
+  const timerElement =
+    document.getElementById(
+      "timer"
+    );
 
-
-  document.getElementById(
-    "timer"
-  ).textContent =
-    "0.00";
-
-
-  document.getElementById(
-    "gameMessage"
-  ).textContent =
-    "";
-
-
-  // ----------------------------------------
-  // ゲームボタン
-  // ----------------------------------------
+  const messageElement =
+    document.getElementById(
+      "gameMessage"
+    );
 
   const gameButton =
     document.getElementById(
@@ -1025,11 +1021,35 @@ function startNewGame() {
     );
 
 
-  gameButton.textContent =
-    "スタート";
+  if (targetElement) {
 
-  gameButton.dataset.mode =
-    "start";
+    targetElement.textContent =
+      targetTime.toFixed(2);
+  }
+
+
+  if (timerElement) {
+
+    timerElement.textContent =
+      "0.00";
+  }
+
+
+  if (messageElement) {
+
+    messageElement.textContent =
+      "";
+  }
+
+
+  if (gameButton) {
+
+    gameButton.textContent =
+      "スタート";
+
+    gameButton.dataset.mode =
+      "start";
+  }
 
 
   gameRunning = false;
@@ -1048,14 +1068,15 @@ function toggleGame() {
     );
 
 
+  if (!gameButton) {
+    return;
+  }
+
+
   const mode =
     gameButton.dataset.mode ||
     "start";
 
-
-  // ----------------------------------------
-  // もう一度
-  // ----------------------------------------
 
   if (mode === "retry") {
 
@@ -1065,10 +1086,6 @@ function toggleGame() {
   }
 
 
-  // ----------------------------------------
-  // 停止
-  // ----------------------------------------
-
   if (gameRunning) {
 
     stopGame();
@@ -1076,10 +1093,6 @@ function toggleGame() {
     return;
   }
 
-
-  // ----------------------------------------
-  // 開始
-  // ----------------------------------------
 
   startTimer();
 }
@@ -1090,6 +1103,9 @@ function toggleGame() {
 // ========================================
 
 function startTimer() {
+
+  stopTimer();
+
 
   gameRunning = true;
 
@@ -1103,11 +1119,14 @@ function startTimer() {
     );
 
 
-  gameButton.textContent =
-    "ストップ";
+  if (gameButton) {
 
-  gameButton.dataset.mode =
-    "running";
+    gameButton.textContent =
+      "ストップ";
+
+    gameButton.dataset.mode =
+      "running";
+  }
 
 
   timerInterval =
@@ -1138,10 +1157,17 @@ function updateTimer() {
     1000;
 
 
-  document.getElementById(
-    "timer"
-  ).textContent =
-    currentElapsed.toFixed(2);
+  const timerElement =
+    document.getElementById(
+      "timer"
+    );
+
+
+  if (timerElement) {
+
+    timerElement.textContent =
+      currentElapsed.toFixed(2);
+  }
 }
 
 
@@ -1178,11 +1204,8 @@ async function stopGame() {
   }
 
 
-  // 最後の時間を更新
   updateTimer();
 
-
-  // タイマー停止
   stopTimer();
 
 
@@ -1199,36 +1222,15 @@ async function stopGame() {
     );
 
 
-  // ----------------------------------------
-  // 最終タイム表示
-  // ----------------------------------------
-
-  document.getElementById(
-    "timer"
-  ).textContent =
-    finalTime.toFixed(2);
-
-
-  // ----------------------------------------
-  // もう一度ボタンに変更
-  // ----------------------------------------
+  const timerElement =
+    document.getElementById(
+      "timer"
+    );
 
   const gameButton =
     document.getElementById(
       "gameButton"
     );
-
-
-  gameButton.textContent =
-    "もう一度";
-
-  gameButton.dataset.mode =
-    "retry";
-
-
-  // ----------------------------------------
-  // 誤差表示
-  // ----------------------------------------
 
   const message =
     document.getElementById(
@@ -1236,20 +1238,40 @@ async function stopGame() {
     );
 
 
-  message.textContent =
-    `誤差：${difference.toFixed(2)}秒`;
+  if (timerElement) {
+
+    timerElement.textContent =
+      finalTime.toFixed(2);
+  }
 
 
-  // ----------------------------------------
+  if (gameButton) {
+
+    gameButton.textContent =
+      "もう一度";
+
+    gameButton.dataset.mode =
+      "retry";
+  }
+
+
+  if (message) {
+
+    message.textContent =
+      `誤差：${difference.toFixed(2)}秒`;
+  }
+
+
   // 完全一致
-  // ----------------------------------------
-
   if (
     difference === 0
   ) {
 
-    message.textContent =
-      "ぴった！🎉";
+    if (message) {
+
+      message.textContent =
+        "ぴった！🎉";
+    }
 
 
     await unlockCollection(
@@ -1257,10 +1279,6 @@ async function stopGame() {
     );
   }
 
-
-  // ----------------------------------------
-  // スコア保存
-  // ----------------------------------------
 
   await saveScore(
     difference
@@ -1291,7 +1309,6 @@ async function saveScore(
     );
 
 
-  // 自己ベスト更新なし
   if (
     difference >= currentBest
   ) {
@@ -1309,7 +1326,9 @@ async function saveScore(
     await supabaseClient
       .from("players")
       .update({
-        best_diff: newBest,
+        best_diff:
+          newBest,
+
         updated_at:
           new Date().toISOString()
       })
@@ -1356,11 +1375,12 @@ async function unlockCollection(
     Array.isArray(
       currentProfile.collections
     )
-      ? currentProfile.collections
+      ? [
+          ...currentProfile.collections
+        ]
       : [];
 
 
-  // すでに解除済み
   if (
     collections.includes(time)
   ) {
@@ -1375,8 +1395,8 @@ async function unlockCollection(
     await supabaseClient
       .from("players")
       .update({
-        collections:
-          collections,
+        collections,
+
         updated_at:
           new Date().toISOString()
       })
@@ -1403,7 +1423,7 @@ async function unlockCollection(
 
 
 // ========================================
-// 通常ランキング表示
+// 通常ランキング
 // ========================================
 
 async function showRanking() {
@@ -1417,6 +1437,11 @@ async function showRanking() {
     document.getElementById(
       "rankingList"
     );
+
+
+  if (!rankingList) {
+    return;
+  }
 
 
   rankingList.innerHTML =
@@ -1489,7 +1514,6 @@ async function showRanking() {
         );
 
 
-      // 同じタイムなら同じ順位
       if (
         previousScore === null ||
         score !== previousScore
@@ -1578,7 +1602,6 @@ function renderCollection() {
       "collectionGrid"
     );
 
-
   const countElement =
     document.getElementById(
       "collectionCount"
@@ -1586,6 +1609,8 @@ function renderCollection() {
 
 
   if (
+    !grid ||
+    !countElement ||
     !gameConfig
   ) {
     return;
@@ -1604,10 +1629,6 @@ function renderCollection() {
       : [];
 
 
-  // ----------------------------------------
-  // コレクション数
-  // ----------------------------------------
-
   countElement.textContent =
     `${unlocked.length} / ${items.length}`;
 
@@ -1625,10 +1646,6 @@ function renderCollection() {
   grid.innerHTML =
     "";
 
-
-  // ----------------------------------------
-  // 各コレクション
-  // ----------------------------------------
 
   items.forEach(
     (item) => {
@@ -1649,21 +1666,13 @@ function renderCollection() {
         "collection-item";
 
 
-      if (isUnlocked) {
-
-        element.classList.add(
-          "unlocked"
-        );
-
-      } else {
-
-        element.classList.add(
-          "locked"
-        );
-      }
+      element.classList.add(
+        isUnlocked
+          ? "unlocked"
+          : "locked"
+      );
 
 
-      // 成人向けカテゴリ
       if (
         item.category ===
         "成人向け"
@@ -1675,10 +1684,6 @@ function renderCollection() {
       }
 
 
-      const trophy =
-        "🏆";
-
-
       const name =
         isUnlocked
           ? item.name
@@ -1687,7 +1692,7 @@ function renderCollection() {
 
       element.innerHTML = `
         <div class="collection-trophy">
-          ${trophy}
+          🏆
         </div>
 
         <div class="collection-time">
@@ -1700,10 +1705,10 @@ function renderCollection() {
       `;
 
 
-      // ----------------------------------------
-      // URLが設定されている場合
-      // ----------------------------------------
-
+      /*
+       * URLが設定されている場合のみ
+       * クリック可能にする。
+       */
       if (
         isUnlocked &&
         item.url &&
@@ -1738,7 +1743,7 @@ function renderCollection() {
 
 // ========================================
 // コレクション並び順
-// 健全 → 成人向け
+// 健全 → その他
 // それぞれ時間順
 // ========================================
 
@@ -1805,6 +1810,11 @@ async function showCollectionRanking() {
     );
 
 
+  if (!list) {
+    return;
+  }
+
+
   list.innerHTML =
     "<p>読み込み中...</p>";
 
@@ -1838,11 +1848,11 @@ async function showCollectionRanking() {
 
 
   const total =
-    gameConfig.collections.length;
+    gameConfig?.collections?.length || 0;
 
 
   const ranking =
-    data.map(
+    (data || []).map(
       (player) => {
 
         const collections =
@@ -1854,20 +1864,18 @@ async function showCollectionRanking() {
 
 
         return {
-          name: player.name,
-          count: Math.min(
-            collections.length,
-            total
-          )
+          name:
+            player.name,
+
+          count:
+            Math.min(
+              collections.length,
+              total
+            )
         };
       }
     );
 
-
-  // ----------------------------------------
-  // 多い順
-  // 同数なら名前順
-  // ----------------------------------------
 
   ranking.sort(
     (a, b) => {
@@ -1895,6 +1903,17 @@ async function showCollectionRanking() {
     "";
 
 
+  if (
+    ranking.length === 0
+  ) {
+
+    list.innerHTML =
+      "<p>まだランキングがありません。</p>";
+
+    return;
+  }
+
+
   let previousCount =
     null;
 
@@ -1905,7 +1924,6 @@ async function showCollectionRanking() {
   ranking.forEach(
     (player, index) => {
 
-      // 同じ数なら同じ順位
       if (
         previousCount === null ||
         player.count !==
@@ -1979,22 +1997,27 @@ async function showCollectionRanking() {
 function escapeHtml(value) {
 
   return String(value)
+
     .replace(
       /&/g,
       "&amp;"
     )
+
     .replace(
       /</g,
       "&lt;"
     )
+
     .replace(
       />/g,
       "&gt;"
     )
+
     .replace(
       /"/g,
       "&quot;"
     )
+
     .replace(
       /'/g,
       "&#039;"
