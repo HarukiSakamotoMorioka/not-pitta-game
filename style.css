@@ -299,6 +299,51 @@ button {
 
 
 /* ========================================
+   ゲーム画面プルダウンメニュー
+======================================== */
+
+.game-menu {
+  position: relative;
+}
+
+.game-menu-button {
+  cursor: pointer;
+}
+
+.game-menu-dropdown {
+  position: absolute;
+
+  top: calc(100% + 8px);
+  right: 0;
+
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  min-width: 190px;
+
+  padding: 8px;
+
+  background: #ffffff;
+
+  border: 1px solid #f0cbd7;
+  border-radius: 10px;
+
+  box-shadow:
+    0 4px 12px rgba(220, 120, 150, 0.15);
+}
+
+.game-menu-dropdown button {
+  width: 100%;
+
+  white-space: nowrap;
+}
+
+
+/* ========================================
    ゲーム画面
 ======================================== */
 
@@ -814,6 +859,11 @@ button {
   .collection-ranking-count {
     font-size: 14px;
   }
+
+  /* プルダウンメニュー */
+  .game-menu-dropdown {
+    min-width: 175px;
+  }
 }
 
 
@@ -847,3 +897,4 @@ button {
     min-height: 145px;
   }
 }
+
