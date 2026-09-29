@@ -1640,10 +1640,7 @@ async function stopGame() {
     }, 300);
   }
 }
-  }
 
-  await saveScore(difference);
-}
 
 
 
