@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>なにかおかしい、ぴった！</title>
-  <link rel="stylesheet" href="style.css">
+
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 
 <body>
@@ -38,19 +39,37 @@
         ログイン
       </button>
 
+      <!-- パスワード再設定へのボタン -->
+      <button
+        id="forgotPasswordButton"
+        class="text-button"
+      >
+        パスワードを忘れた
+      </button>
+
       <p id="loginMessage" class="message"></p>
 
       <div class="auth-link">
-        <span>アカウントを作成していない方</span>
 
-        <button id="goSignupButton" class="text-button">
+        <span>
+          アカウントを作成していない方
+        </span>
+
+        <button
+          id="goSignupButton"
+          class="text-button"
+        >
           新規作成
         </button>
+
       </div>
 
     </div>
 
-    <button id="loginToSignupTop" class="corner-button">
+    <button
+      id="loginToSignupTop"
+      class="corner-button"
+    >
       新規作成
     </button>
 
@@ -96,18 +115,88 @@
       <p id="signupMessage" class="message"></p>
 
       <div class="auth-link">
-        <span>すでにアカウントをお持ちの方</span>
 
-        <button id="goLoginButton" class="text-button">
+        <span>
+          すでにアカウントをお持ちの方
+        </span>
+
+        <button
+          id="goLoginButton"
+          class="text-button"
+        >
           ログイン
         </button>
+
       </div>
 
     </div>
 
-    <button id="signupToLoginTop" class="corner-button">
+    <button
+      id="signupToLoginTop"
+      class="corner-button"
+    >
       ログイン
     </button>
+
+  </section>
+
+
+  <!-- ================================
+       パスワード再設定画面
+  ================================= -->
+  <section
+    id="resetPasswordScreen"
+    class="screen hidden"
+  >
+
+    <div class="auth-box">
+
+      <h1>なにかおかしい、ぴった！</h1>
+      <h2>パスワード再設定</h2>
+
+      <input
+        id="resetName"
+        type="text"
+        placeholder="ログイン名"
+        maxlength="20"
+        autocomplete="username"
+      >
+
+      <input
+        id="resetPassword"
+        type="password"
+        placeholder="新しいパスワード（8文字以上）"
+        autocomplete="new-password"
+      >
+
+      <input
+        id="resetPasswordConfirm"
+        type="password"
+        placeholder="新しいパスワード（確認）"
+        autocomplete="new-password"
+      >
+
+      <button id="resetPasswordButton">
+        UPDATE
+      </button>
+
+      <p
+        id="resetPasswordMessage"
+        class="message"
+      ></p>
+
+      <div class="auth-link">
+
+        <button
+          id="resetToLoginButton"
+          class="text-button"
+        >
+          ログイン画面に戻る
+        </button>
+
+      </div>
+
+    </div>
 
   </section>
 
@@ -136,7 +225,10 @@
 
       <h1>なにかおかしい、ぴった！</h1>
 
-      <button id="startGameButton" class="main-button">
+      <button
+        id="startGameButton"
+        class="main-button"
+      >
         ゲームスタート
       </button>
 
@@ -204,7 +296,10 @@
       </div>
 
 
-      <button id="gameButton" class="main-button">
+      <button
+        id="gameButton"
+        class="main-button"
+      >
         スタート
       </button>
 
@@ -247,7 +342,10 @@
   <!-- ================================
        コレクション
   ================================= -->
-  <section id="collectionScreen" class="screen hidden">
+  <section
+    id="collectionScreen"
+    class="screen hidden"
+  >
 
     <div class="page-header">
 
@@ -278,7 +376,10 @@
   <!-- ================================
        コレクションランキング
   ================================= -->
-  <section id="collectionRankScreen" class="screen hidden">
+  <section
+    id="collectionRankScreen"
+    class="screen hidden"
+  >
 
     <div class="page-header">
 
@@ -304,11 +405,16 @@
   </section>
 
 
-  <!-- Supabase -->
+  <!-- ================================
+       Supabase
+  ================================= -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- ゲーム本体 -->
-  <script src="script.js?v=2"></script>
+
+  <!-- ================================
+       ゲーム本体
+  ================================= -->
+  <script src="script.js?v=3"></script>
 
 </body>
 </html>
