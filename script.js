@@ -1908,14 +1908,17 @@ async function showRanking() {
       }
 
 
+      const perfectMark = score === 0 ? " 👑" : "";     // ← ① この1行を追加
+
+
       item.innerHTML = `
         <div class="ranking-position">
           ${currentRank}位
         </div>
 
         <div class="ranking-name">
-          ${escapeHtml(player.name)}
-        </div>
+          ${escapeHtml(player.name)}${perfectMark}
+        </div>                                            
 
         <div class="ranking-score">
           ±${score.toFixed(2)}秒
@@ -1929,6 +1932,8 @@ async function showRanking() {
     }
   );
 }
+
+
 
 
 // ========================================
