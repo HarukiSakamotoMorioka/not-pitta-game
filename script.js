@@ -1573,6 +1573,7 @@ function stopTimer() {
 
 
 // ========================================
+// ========================================
 // ゲーム終了
 // ========================================
 
@@ -1656,6 +1657,81 @@ async function stopGame() {
     await unlockCollection(
       targetTime.toFixed(2)
     );
+  }
+
+
+  // ========================================
+  // 実際に止めた時間でコレクション判定
+  // ========================================
+
+  const hiddenCollection =
+    gameConfig?.collections?.find(
+      (item) =>
+        Number(item.time).toFixed(2) ===
+        finalTime.toFixed(2)
+    );
+
+
+  if (hiddenCollection) {
+
+    const unlocked =
+      Array.isArray(
+        currentProfile?.collections
+      )
+        ? currentProfile.collections.map(
+            (time) =>
+              Number(time).toFixed(2)
+          )
+        : [];
+
+
+    const collectionTime =
+      Number(
+        hiddenCollection.time
+      ).toFixed(2);
+
+
+    const alreadyUnlocked =
+      unlocked.includes(
+        collectionTime
+      );
+
+
+    if (!alreadyUnlocked) {
+
+      await unlockCollection(
+        collectionTime
+      );
+
+
+      // コレクション画面の表示を更新
+      renderCollection();
+
+
+      // JSONに登録されているURLへ移動
+      // ※成人向けは自動遷移しない
+      const url =
+        String(
+          hiddenCollection.url || ""
+        ).trim();
+
+
+      if (
+        hiddenCollection.category !==
+          "成人向け" &&
+        /^https?:\/\//i.test(url)
+      ) {
+
+        setTimeout(() => {
+
+          window.location.href =
+            url;
+
+        }, 300);
+
+        return;
+      }
+    }
   }
 
 
