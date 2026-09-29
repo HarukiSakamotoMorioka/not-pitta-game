@@ -1586,7 +1586,7 @@ async function stopGame() {
   stopTimer();
 
   const finalTime = Number(currentElapsed.toFixed(2));
-  const difference = Math.abs(finalTime - targetTime);
+  const difference = Number(Math.abs(finalTime - targetTime).toFixed(2));
 
   const timerElement = document.getElementById("timer");
   const gameButton = document.getElementById("gameButton");
@@ -1601,43 +1601,45 @@ async function stopGame() {
     gameButton.dataset.mode = "retry";
   }
 
+  // ----- 通常ゲーム(お題との勝負)-----
   if (message) {
-    message.textContent = `誤差：${difference.toFixed(2)}秒`;
+    message.textContent =
+      difference === 0
+        ? "ぴった！🎉"
+        : `誤差：${difference.toFixed(2)}秒`;
   }
 
-  // 完全一致の場合のメッセージ
-  if (difference === 0) {
-    if (message) {
-      message.textContent = "ぴった！🎉";
-    }
-    await unlockCollection(targetTime.toFixed(2));
-  }
+  // スコアは遷移で途切れないよう先に保存
+  await saveScore(difference);
 
-  // 実際の時間でコレクション判定
+  // ----- 隠し要素(お題とは無関係)-----
   const hiddenCollection = gameConfig?.collections?.find(
     (item) => Number(item.time).toFixed(2) === finalTime.toFixed(2)
   );
 
-  if (hiddenCollection) {
-    const unlocked = Array.isArray(currentProfile?.collections)
-      ? currentProfile.collections.map((time) => Number(time).toFixed(2))
-      : [];
+  if (!hiddenCollection) {
+    return;
+  }
 
-    const collectionTime = Number(hiddenCollection.time).toFixed(2);
-    const alreadyUnlocked = unlocked.includes(collectionTime);
+  const collectionTime = Number(hiddenCollection.time).toFixed(2);
 
-    if (!alreadyUnlocked) {
-      await unlockCollection(collectionTime);
-      renderCollection();
+  const unlocked = Array.isArray(currentProfile?.collections)
+    ? currentProfile.collections.map((t) => Number(t).toFixed(2))
+    : [];
 
-      // 赤いブロックの部分を以下で修正することで、成人向けでもリンクに遷移させる
-      const url = String(hiddenCollection.url || "").trim();
-      if (/^https?:\/\//i.test(url)) {
-        setTimeout(() => {
-          window.location.href = url;
-        }, 300);
-      }
-    }
+  // 未解除なら保存(保存が終わってから遷移する)
+  if (!unlocked.includes(collectionTime)) {
+    await unlockCollection(collectionTime);
+  }
+
+  // 一致したら、解除済みでも毎回飛ぶ
+  const url = String(hiddenCollection.url || "").trim();
+  if (/^https?:\/\//i.test(url)) {
+    setTimeout(() => {
+      window.location.href = url;
+    }, 300);
+  }
+}
   }
 
   await saveScore(difference);
