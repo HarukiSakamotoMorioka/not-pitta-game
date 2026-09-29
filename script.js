@@ -1665,7 +1665,7 @@ async function stopGame() {
     message.textContent =
       `誤差：${difference.toFixed(2)}秒`;
   }
-
+}
 
   // ----------------------------------------
   // 完全一致
