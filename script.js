@@ -262,14 +262,64 @@ function setupEvents() {
   );
 
 
+  // ========================================
+  // ゲーム画面メニュー
+  // ========================================
+
+  addClick(
+    "gameMenuButton",
+    toggleGameMenu
+  );
+
+
   // ----------------------------------------
-  // 通常ランキング
+  // メニュー → 通常ランキング
   // ----------------------------------------
 
   addClick(
     "gameRankingButton",
-    showRanking
+    () => {
+
+      closeGameMenu();
+
+      showRanking();
+    }
   );
+
+
+  // ----------------------------------------
+  // メニュー → コレクションランキング
+  // ----------------------------------------
+
+  addClick(
+    "gameCollectionRankingButton",
+    () => {
+
+      closeGameMenu();
+
+      showCollectionRanking();
+    }
+  );
+
+
+  // ----------------------------------------
+  // メニュー → コレクション
+  // ----------------------------------------
+
+  addClick(
+    "gameCollectionButton",
+    () => {
+
+      closeGameMenu();
+
+      showCollection();
+    }
+  );
+
+
+  // ----------------------------------------
+  // 通常ランキング
+  // ----------------------------------------
 
   addClick(
     "rankBackButton",
@@ -280,7 +330,7 @@ function setupEvents() {
 
 
   // ----------------------------------------
-  // コレクション
+  // ランキング → コレクション
   // ----------------------------------------
 
   addClick(
@@ -288,23 +338,16 @@ function setupEvents() {
     showCollection
   );
 
+
+  // ----------------------------------------
+  // コレクション
+  // ----------------------------------------
+
   addClick(
-    
     "collectionBackButton",
     () => {
       showScreen("rankScreen");
     }
-  );
-
-
-  // ----------------------------------------
-  // ゲーム
-  // → コレクションランキング
-  // ----------------------------------------
-
-  addClick(
-    "collectionRankingButton",
-    showCollectionRanking
   );
 
 
@@ -372,6 +415,44 @@ function setupEvents() {
         resetPassword();
       }
     }
+  );
+}
+
+
+// ========================================
+// ゲームメニュー
+// ========================================
+
+function toggleGameMenu() {
+
+  const menu =
+    document.getElementById(
+      "gameMenuDropdown"
+    );
+
+  if (!menu) {
+    return;
+  }
+
+  menu.classList.toggle(
+    "hidden"
+  );
+}
+
+
+function closeGameMenu() {
+
+  const menu =
+    document.getElementById(
+      "gameMenuDropdown"
+    );
+
+  if (!menu) {
+    return;
+  }
+
+  menu.classList.add(
+    "hidden"
   );
 }
 
@@ -461,6 +542,12 @@ function showScreen(screenId) {
       );
     }
   });
+
+  // ゲーム画面以外へ移動したら
+  // プルダウンも閉じる
+  if (screenId !== "gameScreen") {
+    closeGameMenu();
+  }
 }
 
 
@@ -776,6 +863,7 @@ function usernameToEmail(name) {
 
   return `${normalizeUsername(name)}@pitta.local`;
 }
+
 
 // ========================================
 // 新規作成
@@ -1214,6 +1302,8 @@ async function logout() {
 
   stopTimer();
 
+  closeGameMenu();
+
 
   if (supabaseClient) {
 
@@ -1238,6 +1328,8 @@ async function logout() {
 function startNewGame() {
 
   stopTimer();
+
+  closeGameMenu();
 
 
   const minTime =
@@ -1971,10 +2063,6 @@ function renderCollection() {
       `;
 
 
-      /*
-       * URLが設定されている場合のみ
-       * クリック可能にする。
-       */
       if (
         isUnlocked &&
         item.url &&
