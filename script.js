@@ -368,7 +368,7 @@ function setupEvents() {
   addClick(
     "collectionBackButton",
     () => {
-      showScreen("rankScreen");
+      showScreen();
     }
   );
 
