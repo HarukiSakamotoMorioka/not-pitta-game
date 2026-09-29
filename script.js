@@ -1908,7 +1908,7 @@ async function showRanking() {
       }
 
 
-      const perfectMark = score === 0 ? " 👑" : "";     // ← ① この1行を追加
+      const perfectMark = score.toFixed(2) === "0.00" ? " 👑" : "";
 
 
       item.innerHTML = `
