@@ -1908,7 +1908,11 @@ async function showRanking() {
       }
 
 
-      const perfectMark = score.toFixed(2) === "0.00" ? " 👑" : "";
+      const isPerfect = score.toFixed(2) === "0.00";
+
+      const crownMark = isPerfect
+        ? '<span style="font-size:1.6em; margin-right:6px; vertical-align:middle;">👑</span>'
+        : "";
 
 
       item.innerHTML = `
@@ -1917,11 +1921,11 @@ async function showRanking() {
         </div>
 
         <div class="ranking-name">
-          ${escapeHtml(player.name)}${perfectMark}
-        </div>                                            
+          ${escapeHtml(player.name)}
+        </div>
 
         <div class="ranking-score">
-          ±${score.toFixed(2)}秒
+          ${crownMark}±${score.toFixed(2)}秒
         </div>
       `;
 
