@@ -1162,7 +1162,6 @@ async function login() {
 
       return;
     }
-    }
 
 
     currentUser =
