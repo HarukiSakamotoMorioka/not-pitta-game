@@ -1826,7 +1826,7 @@ async function showRanking() {
         </div>
 
         <div class="ranking-score">
-          ${score.toFixed(2)}秒
+          ±${score.toFixed(2)}秒
         </div>
       `;
 
