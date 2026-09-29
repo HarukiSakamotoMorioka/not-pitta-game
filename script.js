@@ -1671,27 +1671,52 @@ async function stopGame() {
   // 完全一致
   // ----------------------------------------
 
-  if (
-    difference === 0
-  ) {
-
-    if (message) {
-
-      message.textContent =
-        "ぴった！🎉";
-    }
-
-
-    await unlockCollection(
-      targetTime
-    );
+if (difference === 0) {
+  if (message) {
+    message.textContent = "ぴった！🎉";
   }
-
-
-  await saveScore(
-    difference
-  );
 }
+
+// 実際に止めた時間がコレクション時間と一致したか判定
+const hiddenCollection =
+  gameConfig?.collections?.find(
+    (item) =>
+      Number(item.time).toFixed(2) ===
+      finalTime.toFixed(2)
+  );
+
+if (hiddenCollection) {
+  const unlocked =
+    Array.isArray(currentProfile?.collections)
+      ? currentProfile.collections.map(
+          (time) => Number(time).toFixed(2)
+        )
+      : [];
+
+  const collectionTime =
+    Number(hiddenCollection.time).toFixed(2);
+
+  const alreadyUnlocked =
+    unlocked.includes(collectionTime);
+
+  // 初めて獲得したときだけ登録・リンク移動
+  if (!alreadyUnlocked) {
+    await unlockCollection(collectionTime);
+
+    // 成人向けリンクには自動遷移しない
+    if (hiddenCollection.category !== "成人向け") {
+      const url =
+        String(hiddenCollection.url || "").trim();
+
+      if (/^https?:\/\//i.test(url)) {
+        window.location.href = url;
+        return;
+      }
+    }
+  }
+}
+
+await saveScore(difference);
 
 
 // ========================================
@@ -1766,87 +1791,39 @@ async function saveScore(
 // コレクション解除
 // ========================================
 
-async function unlockCollection(
-  time
-) {
+async function unlockCollection(time) {
+  if (!supabaseClient || !currentUser || !currentProfile) return;
 
-  if (
-    !supabaseClient ||
-    !currentUser ||
-    !currentProfile
-  ) {
+  const collections = Array.isArray(currentProfile.collections)
+    ? [...currentProfile.collections]
+    : [];
+
+  const normalizedCollections =
+    collections.map((value) => Number(value).toFixed(2));
+
+  const normalizedTime =
+    Number(time).toFixed(2);
+
+  if (normalizedCollections.includes(normalizedTime)) {
     return;
   }
 
+  collections.push(normalizedTime);
 
-  /*
-   * 必ず数値として保存する
-   * これで
-   * "7.94" と 7.94 のズレを防ぐ
-   */
-  const unlockTime =
-    Number(
-      Number(time).toFixed(2)
-    );
-
-
-  const collections =
-    Array.isArray(
-      currentProfile.collections
-    )
-      ? [
-          ...currentProfile.collections
-        ].map(
-          (value) =>
-            Number(value)
-        )
-      : [];
-
-
-  if (
-    collections.some(
-      (value) =>
-        Number(value) ===
-        unlockTime
-    )
-  ) {
-    return;
-  }
-
-
-  collections.push(
-    unlockTime
-  );
-
-
-  const { error } =
-    await supabaseClient
-      .from("players")
-      .update({
-        collections,
-
-        updated_at:
-          new Date().toISOString()
-      })
-      .eq(
-        "user_id",
-        currentUser.id
-      );
-
+  const { error } = await supabaseClient
+    .from("players")
+    .update({
+      collections,
+      updated_at: new Date().toISOString()
+    })
+    .eq("user_id", currentUser.id);
 
   if (error) {
-
-    console.error(
-      "Collection save error:",
-      error
-    );
-
+    console.error("Collection save error:", error);
     return;
   }
 
-
-  currentProfile.collections =
-    collections;
+  currentProfile.collections = collections;
 }
 
 
@@ -2100,9 +2077,9 @@ function renderCollection() {
 
       const isUnlocked =
         unlocked.some(
-          (value) =>
-            Number(value) ===
-            itemTime
+          (time) =>
+            Number(time).toFixed(2) ===
+            Number(item.time).toFixed(2)
         );
 
 
