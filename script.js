@@ -1677,7 +1677,7 @@ if (difference === 0) {
   }
 }
 
-// 実際に止めた時間がコレクション時間と一致したか判定
+// 実際に止めた時間がコレクション時間と一致するか確認
 const hiddenCollection =
   gameConfig?.collections?.find(
     (item) =>
@@ -1699,19 +1699,18 @@ if (hiddenCollection) {
   const alreadyUnlocked =
     unlocked.includes(collectionTime);
 
-  // 初めて獲得したときだけ登録・リンク移動
   if (!alreadyUnlocked) {
     await unlockCollection(collectionTime);
 
-    // 成人向けリンクには自動遷移しない
-    if (hiddenCollection.category !== "成人向け") {
-      const url =
-        String(hiddenCollection.url || "").trim();
+    const url =
+      String(hiddenCollection.url || "").trim();
 
-      if (/^https?:\/\//i.test(url)) {
-        window.location.href = url;
-        return;
-      }
+    if (
+      hiddenCollection.category !== "成人向け" &&
+      /^https?:\/\//i.test(url)
+    ) {
+      window.location.href = url;
+      return;
     }
   }
 }
