@@ -1578,167 +1578,71 @@ function stopTimer() {
 // ========================================
 
 async function stopGame() {
-
   if (!gameRunning) {
     return;
   }
 
-
   updateTimer();
-
   stopTimer();
 
+  const finalTime = Number(currentElapsed.toFixed(2));
+  const difference = Math.abs(finalTime - targetTime);
 
-  const finalTime =
-    Number(
-      currentElapsed.toFixed(2)
-    );
-
-
-  const difference =
-    Math.abs(
-      finalTime -
-      targetTime
-    );
-
-
-  const timerElement =
-    document.getElementById(
-      "timer"
-    );
-
-  const gameButton =
-    document.getElementById(
-      "gameButton"
-    );
-
-  const message =
-    document.getElementById(
-      "gameMessage"
-    );
-
+  const timerElement = document.getElementById("timer");
+  const gameButton = document.getElementById("gameButton");
+  const message = document.getElementById("gameMessage");
 
   if (timerElement) {
-
-    timerElement.textContent =
-      finalTime.toFixed(2);
+    timerElement.textContent = finalTime.toFixed(2);
   }
-
 
   if (gameButton) {
-
-    gameButton.textContent =
-      "もう一度";
-
-    gameButton.dataset.mode =
-      "retry";
+    gameButton.textContent = "もう一度";
+    gameButton.dataset.mode = "retry";
   }
-
 
   if (message) {
-
-    message.textContent =
-      `誤差：${difference.toFixed(2)}秒`;
+    message.textContent = `誤差：${difference.toFixed(2)}秒`;
   }
 
-
-  // 完全一致
-  if (
-    difference === 0
-  ) {
-
+  // 完全一致の場合のメッセージ
+  if (difference === 0) {
     if (message) {
-
-      message.textContent =
-        "ぴった！🎉";
+      message.textContent = "ぴった！🎉";
     }
-
-
-    await unlockCollection(
-      targetTime.toFixed(2)
-    );
+    await unlockCollection(targetTime.toFixed(2));
   }
 
-
-  // ========================================
-  // 実際に止めた時間でコレクション判定
-  // ========================================
-
-  const hiddenCollection =
-    gameConfig?.collections?.find(
-      (item) =>
-        Number(item.time).toFixed(2) ===
-        finalTime.toFixed(2)
-    );
-
+  // 実際の時間でコレクション判定
+  const hiddenCollection = gameConfig?.collections?.find(
+    (item) => Number(item.time).toFixed(2) === finalTime.toFixed(2)
+  );
 
   if (hiddenCollection) {
+    const unlocked = Array.isArray(currentProfile?.collections)
+      ? currentProfile.collections.map((time) => Number(time).toFixed(2))
+      : [];
 
-    const unlocked =
-      Array.isArray(
-        currentProfile?.collections
-      )
-        ? currentProfile.collections.map(
-            (time) =>
-              Number(time).toFixed(2)
-          )
-        : [];
-
-
-    const collectionTime =
-      Number(
-        hiddenCollection.time
-      ).toFixed(2);
-
-
-    const alreadyUnlocked =
-      unlocked.includes(
-        collectionTime
-      );
-
+    const collectionTime = Number(hiddenCollection.time).toFixed(2);
+    const alreadyUnlocked = unlocked.includes(collectionTime);
 
     if (!alreadyUnlocked) {
-
-      await unlockCollection(
-        collectionTime
-      );
-
-
-      // コレクション画面の表示を更新
+      await unlockCollection(collectionTime);
       renderCollection();
 
-
-      // JSONに登録されているURLへ移動
-      // ※成人向けは自動遷移しない
-      const url =
-        String(
-          hiddenCollection.url || ""
-        ).trim();
-
-
-      if (
-        hiddenCollection.category !==
-          "成人向け" &&
-        /^https?:\/\//i.test(url)
-      ) {
-
+      // 赤いブロックの部分を以下で修正することで、成人向けでもリンクに遷移させる
+      const url = String(hiddenCollection.url || "").trim();
+      if (/^https?:\/\//i.test(url)) {
         setTimeout(() => {
-
-          window.location.href =
-            url;
-
+          window.location.href = url;
         }, 300);
-
-        return;
       }
     }
   }
 
-
-  await saveScore(
-    difference
-  );
+  await saveScore(difference);
 }
+
 
 
 // ========================================
