@@ -754,7 +754,25 @@ async function resetPassword() {
 // ログイン名処理
 // ========================================
 
+function normalizeUsername(name) {
+
+  return name
+    .trim()
+    .normalize("NFKC")
+    .toLowerCase();
+}
+
+
+function isValidUsername(name) {
+
+  return /^[\p{L}\p{N}_-]{2,20}$/u.test(
+    name
+  );
+}
+
+
 function usernameToEmail(name) {
+
   return `${normalizeUsername(name)}@pitta.local`;
 }
 
