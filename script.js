@@ -164,6 +164,7 @@ function setupEvents() {
     }
   );
 
+
   addClick(
     "loginToSignupTop",
     () => {
@@ -185,6 +186,7 @@ function setupEvents() {
     }
   );
 
+
   addClick(
     "signupToLoginTop",
     () => {
@@ -202,6 +204,7 @@ function setupEvents() {
     "resetPasswordButton",
     resetPassword
   );
+
 
   addClick(
     "resetToLoginButton",
@@ -372,6 +375,7 @@ function setupEvents() {
       showScreen("collectionScreen");
     }
   );
+
 
   addClick(
     "collectionRankGameButton",
@@ -1332,27 +1336,70 @@ function startNewGame() {
   closeGameMenu();
 
 
-  const minTime =
-    Number(
-      gameConfig?.settings?.minTime ?? 5
-    );
-
-  const maxTime =
-    Number(
-      gameConfig?.settings?.maxTime ?? 10
-    );
-
-
-  targetTime =
-    Math.random() *
-      (maxTime - minTime) +
-    minTime;
+  /*
+   * game.json の collections に登録されている
+   * 指定秒数の中からランダムで1つ選ぶ
+   */
+  const collections =
+    Array.isArray(gameConfig?.collections)
+      ? gameConfig.collections
+      : [];
 
 
-  targetTime =
-    Number(
-      targetTime.toFixed(2)
-    );
+  const validCollections =
+    collections.filter((item) => {
+
+      const time =
+        Number(item?.time);
+
+      return Number.isFinite(time);
+    });
+
+
+  /*
+   * コレクションが存在する場合
+   * → 登録されている指定秒数から選ぶ
+   */
+  if (validCollections.length > 0) {
+
+    const randomIndex =
+      Math.floor(
+        Math.random() *
+        validCollections.length
+      );
+
+    targetTime =
+      Number(
+        Number(
+          validCollections[randomIndex].time
+        ).toFixed(2)
+      );
+
+  } else {
+
+    /*
+     * collections がない場合の予備処理
+     */
+    const minTime =
+      Number(
+        gameConfig?.settings?.minTime ?? 5
+      );
+
+    const maxTime =
+      Number(
+        gameConfig?.settings?.maxTime ?? 10
+      );
+
+    targetTime =
+      Math.random() *
+        (maxTime - minTime) +
+      minTime;
+
+    targetTime =
+      Number(
+        targetTime.toFixed(2)
+      );
+  }
 
 
   currentElapsed = 0;
@@ -1620,7 +1667,10 @@ async function stopGame() {
   }
 
 
+  // ----------------------------------------
   // 完全一致
+  // ----------------------------------------
+
   if (
     difference === 0
   ) {
@@ -1633,7 +1683,7 @@ async function stopGame() {
 
 
     await unlockCollection(
-      targetTime.toFixed(2)
+      targetTime
     );
   }
 
@@ -1729,24 +1779,44 @@ async function unlockCollection(
   }
 
 
+  /*
+   * 必ず数値として保存する
+   * これで
+   * "7.94" と 7.94 のズレを防ぐ
+   */
+  const unlockTime =
+    Number(
+      Number(time).toFixed(2)
+    );
+
+
   const collections =
     Array.isArray(
       currentProfile.collections
     )
       ? [
           ...currentProfile.collections
-        ]
+        ].map(
+          (value) =>
+            Number(value)
+        )
       : [];
 
 
   if (
-    collections.includes(time)
+    collections.some(
+      (value) =>
+        Number(value) ===
+        unlockTime
+    )
   ) {
     return;
   }
 
 
-  collections.push(time);
+  collections.push(
+    unlockTime
+  );
 
 
   const { error } =
@@ -1908,6 +1978,15 @@ async function showRanking() {
       }
 
 
+      /*
+       * 0.00秒なら👑
+       */
+      const crown =
+        score === 0
+          ? " 👑"
+          : "";
+
+
       item.innerHTML = `
         <div class="ranking-position">
           ${currentRank}位
@@ -1918,7 +1997,7 @@ async function showRanking() {
         </div>
 
         <div class="ranking-score">
-          ±${score.toFixed(2)}秒
+          ±${score.toFixed(2)}秒${crown}
         </div>
       `;
 
@@ -1979,11 +2058,18 @@ function renderCollection() {
     getSortedCollections();
 
 
+  /*
+   * DBに昔の文字列データが残っていても
+   * 数値に変換して判定する
+   */
   const unlocked =
     Array.isArray(
       currentProfile?.collections
     )
-      ? currentProfile.collections
+      ? currentProfile.collections.map(
+          (value) =>
+            Number(value)
+        )
       : [];
 
 
@@ -2008,9 +2094,15 @@ function renderCollection() {
   items.forEach(
     (item) => {
 
+      const itemTime =
+        Number(item.time);
+
+
       const isUnlocked =
-        unlocked.includes(
-          item.time
+        unlocked.some(
+          (value) =>
+            Number(value) ===
+            itemTime
         );
 
 
@@ -2054,7 +2146,9 @@ function renderCollection() {
         </div>
 
         <div class="collection-time">
-          ${escapeHtml(item.time)}秒
+          ${escapeHtml(
+            Number(item.time).toFixed(2)
+          )}秒
         </div>
 
         <div class="collection-name">
@@ -2063,10 +2157,16 @@ function renderCollection() {
       `;
 
 
+      /*
+       * 獲得済み ＋ URLあり
+       * → クリックでリンクへ
+       */
       if (
         isUnlocked &&
         item.url &&
-        item.url.startsWith("http")
+        /^https?:\/\//i.test(
+          String(item.url).trim()
+        )
       ) {
 
         element.style.cursor =
@@ -2078,7 +2178,7 @@ function renderCollection() {
           () => {
 
             window.open(
-              item.url,
+              String(item.url).trim(),
               "_blank",
               "noopener,noreferrer"
             );
@@ -2377,3 +2477,4 @@ function escapeHtml(value) {
       "&#039;"
     );
 }
+
